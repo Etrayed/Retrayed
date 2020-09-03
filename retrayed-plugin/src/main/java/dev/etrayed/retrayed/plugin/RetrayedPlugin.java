@@ -25,7 +25,7 @@ import java.util.concurrent.Future;
 @DependsOn(@Dependency("ProtocolLib"))
 public class RetrayedPlugin extends JavaPlugin implements RetrayedAPI {
 
-    private ReplayStorage<? extends InternalReplay> replayStorage;
+    private ReplayStorage<?> replayStorage;
 
     private Replay replay;
 

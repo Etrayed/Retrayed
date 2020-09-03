@@ -21,11 +21,15 @@
 
     <repositories>
         <repository>
-            <id>spigot-repo</id>
+            <id>spigot-snapshots</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
         <repository>
-            <id>dmulloy2-repo</id>
+            <id>dmulloy2-releases</id>
+            <url>https://repo.dmulloy2.net/nexus/repository/releases/</url>
+        </repository>
+        <repository>
+            <id>dmulloy2-snapshots</id>
             <url>https://repo.dmulloy2.net/nexus/repository/releases/</url>
         </repository>
     </repositories>

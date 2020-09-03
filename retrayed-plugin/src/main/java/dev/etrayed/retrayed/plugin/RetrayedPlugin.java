@@ -36,7 +36,6 @@ public class RetrayedPlugin extends JavaPlugin implements RetrayedAPI {
         // TODO: init replay storage
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Future<Replay> initReplay(long replayId, PluginPurpose purpose) {
         if(purpose == PluginPurpose.NONE) {
@@ -45,6 +44,15 @@ public class RetrayedPlugin extends JavaPlugin implements RetrayedAPI {
             return CompletableFuture.completedFuture(null);
         }
 
+        CompletableFuture<Replay> future = initReplay0(replayId, purpose);
+
+        future.thenAccept(loadedReplay -> this.replay = loadedReplay);
+
+        return future;
+    }
+
+    @SuppressWarnings("unchecked")
+    private CompletableFuture<Replay> initReplay0(long replayId, PluginPurpose purpose) {
         Preconditions.checkArgument(purpose == PluginPurpose.PLAY || purpose == PluginPurpose.RECORD,
                 "purpose must be one of the following: " + PluginPurpose.PLAY + ", " + PluginPurpose.RECORD
                         + ", " + PluginPurpose.NONE + " (was " + purpose + ')');
@@ -53,7 +61,7 @@ public class RetrayedPlugin extends JavaPlugin implements RetrayedAPI {
 
         switch (purpose) {
             case PLAY:
-                return (Future<Replay>) replayStorage.load(replayId);
+                return (CompletableFuture<Replay>) replayStorage.load(replayId);
             case RECORD:
                 return CompletableFuture.completedFuture(new RecordingReplay(replayId));
             default:

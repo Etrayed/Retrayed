@@ -38,6 +38,8 @@ public class RetrayedPlugin extends JavaPlugin implements RetrayedAPI {
 
     @Override
     public Future<Replay> initReplay(long replayId, PluginPurpose purpose) {
+        Preconditions.checkArgument(replay != null && purpose != null, "This server has already been initialized.");
+
         if(purpose == PluginPurpose.NONE) {
             Bukkit.getPluginManager().disablePlugin(this);
 

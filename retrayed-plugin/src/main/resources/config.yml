@@ -1,0 +1,12 @@
+# Retrayed Config
+
+# How should the recorded data be saved? (Must be one of MYSQL, MONGODB, CASSANDRA or EXTERN)
+storageStrategy: MYSQL
+
+# The storages' credentials. For EXTERN, only "host" and "port" are required.
+credentials:
+  host: 127.0.0.1
+  port: 3306
+  database: test
+  username: localtest
+  password: password

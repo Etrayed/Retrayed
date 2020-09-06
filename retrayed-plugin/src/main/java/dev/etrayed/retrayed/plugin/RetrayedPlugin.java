@@ -33,6 +33,9 @@ public class RetrayedPlugin extends JavaPlugin implements RetrayedAPI {
 
     @Override
     public void onLoad() {
+        getConfig().options().copyDefaults(true);
+        saveDefaultConfig();
+
         // TODO: init replay storage
     }
 

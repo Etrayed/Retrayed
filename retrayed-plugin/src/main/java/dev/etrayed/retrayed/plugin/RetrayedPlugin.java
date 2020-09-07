@@ -59,7 +59,7 @@ public class RetrayedPlugin extends JavaPlugin implements RetrayedAPI {
     }
 
     @Override
-    public Future<Replay> initReplay(long replayId, PluginPurpose purpose) {
+    public Future<Replay> initReplay(int replayId, PluginPurpose purpose) {
         Preconditions.checkArgument(replay != null && purpose != null, "This server has already been initialized.");
 
         if(purpose == PluginPurpose.NONE) {
@@ -76,7 +76,7 @@ public class RetrayedPlugin extends JavaPlugin implements RetrayedAPI {
     }
 
     @SuppressWarnings("unchecked")
-    private CompletableFuture<Replay> initReplay0(long replayId, PluginPurpose purpose) {
+    private CompletableFuture<Replay> initReplay0(int replayId, PluginPurpose purpose) {
         Preconditions.checkArgument(purpose == PluginPurpose.PLAY || purpose == PluginPurpose.RECORD,
                 "purpose must be one of the following: " + PluginPurpose.PLAY + ", " + PluginPurpose.RECORD
                         + ", " + PluginPurpose.NONE + " (was " + purpose + ')');

@@ -11,7 +11,7 @@ import java.util.concurrent.Future;
 public interface RetrayedAPI {
 
     @NotNull
-    Future<Replay> initReplay(long replayId, @NotNull PluginPurpose purpose);
+    Future<Replay> initReplay(int replayId, @NotNull PluginPurpose purpose);
 
     @Nullable
     Replay currentReplay();

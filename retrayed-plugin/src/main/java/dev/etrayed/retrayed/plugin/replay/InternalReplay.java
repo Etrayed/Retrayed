@@ -7,17 +7,17 @@ import dev.etrayed.retrayed.api.Replay;
  */
 public abstract class InternalReplay implements Replay {
 
-    private final long id;
+    private final int id;
 
     private final int protocolVersion;
 
-    public InternalReplay(long id, int protocolVersion) {
+    public InternalReplay(int id, int protocolVersion) {
         this.id = id;
         this.protocolVersion = protocolVersion;
     }
 
     @Override
-    public long id() {
+    public int id() {
         return id;
     }
 

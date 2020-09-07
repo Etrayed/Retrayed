@@ -8,7 +8,7 @@ import dev.etrayed.retrayed.api.event.BlockingEventIterator;
  */
 public class RecordingReplay extends InternalReplay {
 
-    public RecordingReplay(long id) {
+    public RecordingReplay(int id) {
         super(id, MinecraftProtocolVersion.getCurrentVersion());
     }
 

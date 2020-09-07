@@ -1,6 +1,6 @@
 package dev.etrayed.retrayed.api;
 
-import dev.etrayed.retrayed.api.record.BlockingRecordedPacketIterator;
+import dev.etrayed.retrayed.api.event.BlockingEventIterator;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -11,7 +11,7 @@ public interface Replay {
     long id();
 
     @NotNull
-    BlockingRecordedPacketIterator packetIterator();
+    BlockingEventIterator eventIterator();
 
     int protocolVersion();
 }

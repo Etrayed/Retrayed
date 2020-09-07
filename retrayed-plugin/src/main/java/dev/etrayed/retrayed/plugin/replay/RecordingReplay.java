@@ -1,7 +1,7 @@
 package dev.etrayed.retrayed.plugin.replay;
 
 import com.comphenix.protocol.utility.MinecraftProtocolVersion;
-import dev.etrayed.retrayed.api.record.BlockingRecordedPacketIterator;
+import dev.etrayed.retrayed.api.event.BlockingEventIterator;
 
 /**
  * @author Etrayed
@@ -13,7 +13,7 @@ public class RecordingReplay extends InternalReplay {
     }
 
     @Override
-    public BlockingRecordedPacketIterator packetIterator() {
+    public BlockingEventIterator eventIterator() {
         throw new IllegalStateException("cannot iterate through a replay which is currently being recorded");
     }
 }

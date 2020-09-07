@@ -1,7 +1,8 @@
 package dev.etrayed.retrayed.api.event;
 
-import dev.etrayed.retrayed.api.player.WrappedPlayer;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.UUID;
 
 /**
  * @author Etrayed
@@ -15,5 +16,5 @@ public interface PlayerDrivenEvent extends Event {
     void undo();
 
     @NotNull
-    WrappedPlayer player();
+    UUID playerId();
 }

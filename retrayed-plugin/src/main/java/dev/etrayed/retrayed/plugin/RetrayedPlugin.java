@@ -39,7 +39,8 @@ public class RetrayedPlugin extends JavaPlugin implements RetrayedAPI {
         saveDefaultConfig();
 
         try {
-            this.replayStorage = StorageStrategy.fromString(getConfig().getString("storageStrategy")).createStorage(this);
+            this.replayStorage = StorageStrategy.fromString(getConfig().getString("storageStrategy"))
+                    .createStorage(new ReplayStorage.Credentials(this.getConfig().getConfigurationSection("credentials")));
         } catch (ReflectiveOperationException e) {
             getLogger().log(Level.SEVERE, "Could not initialize replayStorage: ", e);
 

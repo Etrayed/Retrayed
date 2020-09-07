@@ -1,6 +1,7 @@
 package dev.etrayed.retrayed.plugin.storage;
 
 import dev.etrayed.retrayed.plugin.replay.InternalReplay;
+import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -19,4 +20,30 @@ public interface ReplayStorage<R extends InternalReplay> extends Closeable {
 
     @Override
     void close() throws IOException;
+
+    class Credentials {
+
+        public final String host;
+
+        public final int port;
+
+        public final String database;
+
+        public final String username;
+
+        public final char[] password;
+
+        public Credentials(ConfigurationSection section) {
+            this(section.getString("host"), section.getInt("port"), section.getString("database"),
+                    section.getString("username"), section.getString("password").toCharArray());
+        }
+
+        Credentials(String host, int port, String database, String username, char[] password) {
+            this.host = host;
+            this.port = port;
+            this.database = database;
+            this.username = username;
+            this.password = password;
+        }
+    }
 }

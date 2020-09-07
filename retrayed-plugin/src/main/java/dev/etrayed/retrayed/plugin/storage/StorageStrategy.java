@@ -1,7 +1,5 @@
 package dev.etrayed.retrayed.plugin.storage;
 
-import dev.etrayed.retrayed.plugin.RetrayedPlugin;
-
 /**
  * @author Etrayed
  */
@@ -36,7 +34,7 @@ public enum StorageStrategy {
         return storageClass;
     }
 
-    public ReplayStorage<?> createStorage(RetrayedPlugin plugin) throws ReflectiveOperationException {
-        return storageClass.getDeclaredConstructor(plugin.getClass()).newInstance(plugin);
+    public ReplayStorage<?> createStorage(ReplayStorage.Credentials credentials) throws ReflectiveOperationException {
+        return storageClass.getDeclaredConstructor(ReplayStorage.Credentials.class).newInstance(credentials);
     }
 }

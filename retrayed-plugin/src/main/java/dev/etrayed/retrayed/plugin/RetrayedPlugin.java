@@ -4,9 +4,9 @@ import com.google.common.base.Preconditions;
 import dev.etrayed.retrayed.api.PluginPurpose;
 import dev.etrayed.retrayed.api.Replay;
 import dev.etrayed.retrayed.api.RetrayedAPI;
-import dev.etrayed.retrayed.plugin.replay.InternalReplay;
 import dev.etrayed.retrayed.plugin.replay.RecordingReplay;
 import dev.etrayed.retrayed.plugin.storage.ReplayStorage;
+import dev.etrayed.retrayed.plugin.storage.StorageStrategy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.annotation.dependency.Dependency;
@@ -14,8 +14,10 @@ import org.bukkit.plugin.java.annotation.dependency.DependsOn;
 import org.bukkit.plugin.java.annotation.plugin.Plugin;
 import org.bukkit.plugin.java.annotation.plugin.author.Author;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 
 /**
  * @author Etrayed
@@ -36,7 +38,24 @@ public class RetrayedPlugin extends JavaPlugin implements RetrayedAPI {
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
 
-        // TODO: init replay storage
+        try {
+            this.replayStorage = StorageStrategy.fromString(getConfig().getString("storageStrategy")).createStorage(this);
+        } catch (ReflectiveOperationException e) {
+            getLogger().log(Level.SEVERE, "Could not initialize replayStorage: ", e);
+
+            Bukkit.getPluginManager().disablePlugin(this);
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        if(replayStorage != null) {
+            try {
+                replayStorage.close();
+            } catch (IOException e) {
+                getLogger().log(Level.SEVERE, "Failed to close replayStorage: ", e);
+            }
+        }
     }
 
     @Override
@@ -51,7 +70,7 @@ public class RetrayedPlugin extends JavaPlugin implements RetrayedAPI {
 
         CompletableFuture<Replay> future = initReplay0(replayId, purpose);
 
-        future.thenAccept(loadedReplay -> this.replay = loadedReplay);
+        future.thenAccept(loadedReplay -> this.replay = loadedReplay); // TODO CHECK IF SERVER VERSION IS THE SAME
 
         return future;
     }

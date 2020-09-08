@@ -11,6 +11,10 @@
 
     <artifactId>retrayed-plugin</artifactId>
 
+    <properties>
+        <skipTests>true</skipTests>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>

@@ -14,6 +14,6 @@ public class RecordingReplay extends InternalReplay {
 
     @Override
     public BlockingEventIterator eventIterator() {
-        throw new IllegalStateException("cannot iterate through a replay which is currently being recorded");
+        return null; // TODO: should be dynamically parsed by current recorded data
     }
 }

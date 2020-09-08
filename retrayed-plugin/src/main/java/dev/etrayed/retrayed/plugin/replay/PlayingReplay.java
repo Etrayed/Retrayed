@@ -7,12 +7,16 @@ import dev.etrayed.retrayed.api.event.BlockingEventIterator;
  */
 public class PlayingReplay extends InternalReplay {
 
-    public PlayingReplay(int id, int protocolVersion) {
+    private final BlockingEventIterator eventIterator;
+
+    public PlayingReplay(int id, int protocolVersion, BlockingEventIterator eventIterator) {
         super(id, protocolVersion);
+
+        this.eventIterator = eventIterator;
     }
 
     @Override
     public BlockingEventIterator eventIterator() {
-        return null;
+        return eventIterator;
     }
 }

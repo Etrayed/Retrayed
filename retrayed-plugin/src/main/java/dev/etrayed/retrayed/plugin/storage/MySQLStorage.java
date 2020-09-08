@@ -80,7 +80,8 @@ public class MySQLStorage implements ReplayStorage<InternalReplay, RecordingRepl
 
                 try (ResultSet resultSet = statement.executeQuery()) {
                     if(resultSet.next()) {
-                        future.complete(new PlayingReplay(replayId, resultSet.getInt("mc_protocol_id"))); // TODO PARSE event_data from json
+                        future.complete(new PlayingReplay(replayId, resultSet.getInt("mc_protocol_id"),
+                                plugin.eventIteratorFactory().fromString(resultSet.getString("event_data"))));
                     }
                 }
             } catch (Exception e) {
@@ -100,8 +101,10 @@ public class MySQLStorage implements ReplayStorage<InternalReplay, RecordingRepl
             statement.setInt(2, replay.protocolVersion());
             statement.setInt(4, replay.protocolVersion());
 
-            statement.setString(3, "");
-            statement.setString(5, "");
+            String eventData = plugin.eventIteratorFactory().toString(replay.eventIterator());
+
+            statement.setString(3, eventData);
+            statement.setString(5, eventData);
 
             statement.executeUpdate();
         } catch (SQLException e) {

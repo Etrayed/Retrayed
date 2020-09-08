@@ -31,37 +31,29 @@ public class MySQLStorage implements ReplayStorage<InternalReplay> {
     }
 
     private Connection makeConnection(Credentials credentials) throws SQLException {
-        Connection connection = null;
+        Properties info = new Properties();
 
-        try {
-            Properties info = new Properties();
+        info.setProperty("username", credentials.username);
+        info.put("password", credentials.password);
 
-            info.setProperty("username", credentials.username);
-            info.put("password", credentials.password);
+        Connection connection = DriverManager.getConnection(String.format(CONNECTION_STRING_FORMAT,
+                credentials.host,
+                credentials.port,
+                credentials.database), info);
 
-            connection = DriverManager.getConnection(String.format(CONNECTION_STRING_FORMAT,
-                    credentials.host,
-                    credentials.port,
-                    credentials.database), info);
+        LOGGER.info("[MYSQL] Successfully connected.");
 
-            LOGGER.info("[MYSQL] Successfully connected.");
-
-            createTable(connection);
-        } finally {
-            if(connection != null && !connection.isClosed()) {
-                connection.close();
-            }
-        }
+        createTable(connection);
 
         return connection;
     }
 
     private void createTable(Connection connection) throws SQLException {
         try (Statement createStatement = connection.createStatement()) {
-            createStatement.executeUpdate("CREATE TABLE IF NOT EXIST " + TABLE_NAME + '(' +
+            createStatement.executeUpdate("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + '(' +
                     "replay_id INT, " +
                     "mc_protocol_id INT, " +
-                    "event_data BLOB, " +
+                    "event_data TEXT, " +
                     "PRIMARY KEY (`replay_id`))");
         }
     }

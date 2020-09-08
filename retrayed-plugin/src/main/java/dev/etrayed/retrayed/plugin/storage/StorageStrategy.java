@@ -1,6 +1,6 @@
 package dev.etrayed.retrayed.plugin.storage;
 
-import java.util.concurrent.ExecutorService;
+import dev.etrayed.retrayed.plugin.IRetrayedPlugin;
 
 /**
  * @author Etrayed
@@ -36,8 +36,8 @@ public enum StorageStrategy {
         return storageClass;
     }
 
-    public ReplayStorage<?, ?> createStorage(ReplayStorage.Credentials credentials, ExecutorService executorService) throws ReflectiveOperationException {
-        return storageClass.getDeclaredConstructor(ReplayStorage.Credentials.class, ExecutorService.class)
-                .newInstance(credentials, executorService);
+    public ReplayStorage<?, ?> createStorage(ReplayStorage.Credentials credentials, IRetrayedPlugin plugin) throws ReflectiveOperationException {
+        return storageClass.getDeclaredConstructor(ReplayStorage.Credentials.class, IRetrayedPlugin.class)
+                .newInstance(credentials, plugin);
     }
 }

@@ -1,5 +1,6 @@
 package dev.etrayed.retrayed.plugin.storage;
 
+import dev.etrayed.retrayed.plugin.IRetrayedPlugin;
 import dev.etrayed.retrayed.plugin.replay.InternalReplay;
 import dev.etrayed.retrayed.plugin.replay.PlayingReplay;
 import dev.etrayed.retrayed.plugin.replay.RecordingReplay;
@@ -7,7 +8,6 @@ import dev.etrayed.retrayed.plugin.replay.RecordingReplay;
 import java.sql.*;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,11 +23,11 @@ public class MySQLStorage implements ReplayStorage<InternalReplay, RecordingRepl
 
     private final Connection connection;
 
-    private final ExecutorService executorService;
+    private final IRetrayedPlugin plugin;
 
-    public MySQLStorage(Credentials credentials, ExecutorService executorService) throws SQLException {
+    public MySQLStorage(Credentials credentials, IRetrayedPlugin plugin) throws SQLException {
         this.connection = makeConnection(credentials);
-        this.executorService = executorService;
+        this.plugin = plugin;
     }
 
     private Connection makeConnection(Credentials credentials) throws SQLException {
@@ -71,7 +71,7 @@ public class MySQLStorage implements ReplayStorage<InternalReplay, RecordingRepl
     public CompletableFuture<InternalReplay> load(int replayId) {
         CompletableFuture<InternalReplay> future = new CompletableFuture<>();
 
-        executorService.submit(() -> {
+        plugin.executorService().submit(() -> {
             try {
                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + TABLE_NAME
                         + " WHERE replay_id=" + replayId);

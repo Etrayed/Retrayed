@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import dev.etrayed.retrayed.api.PluginPurpose;
 import dev.etrayed.retrayed.api.Replay;
 import dev.etrayed.retrayed.api.RetrayedAPI;
+import dev.etrayed.retrayed.plugin.event.EventIteratorFactory;
 import dev.etrayed.retrayed.plugin.replay.RecordingReplay;
 import dev.etrayed.retrayed.plugin.storage.ReplayStorage;
 import dev.etrayed.retrayed.plugin.storage.StorageStrategy;
@@ -27,7 +28,7 @@ import java.util.logging.Level;
 @Plugin(name = "Retrayed", version = "DEV")
 @Author("Etrayed")
 @DependsOn(@Dependency("ProtocolLib"))
-public class RetrayedPlugin extends JavaPlugin implements RetrayedAPI {
+public class RetrayedPlugin extends JavaPlugin implements IRetrayedPlugin {
 
     private ReplayStorage<?, ?> replayStorage;
 
@@ -36,6 +37,8 @@ public class RetrayedPlugin extends JavaPlugin implements RetrayedAPI {
     private PluginPurpose purpose;
 
     private ScheduledExecutorService executorService;
+
+    private EventIteratorFactory eventIteratorFactory;
 
     @Override
     public void onLoad() {
@@ -46,8 +49,7 @@ public class RetrayedPlugin extends JavaPlugin implements RetrayedAPI {
 
         try {
             this.replayStorage = StorageStrategy.fromString(getConfig().getString("storageStrategy"))
-                    .createStorage(new ReplayStorage.Credentials(this.getConfig().getConfigurationSection("credentials")),
-                            executorService);
+                    .createStorage(new ReplayStorage.Credentials(this.getConfig().getConfigurationSection("credentials")), this);
         } catch (ReflectiveOperationException e) {
             getLogger().log(Level.SEVERE, "Could not initialize replayStorage: ", e);
 
@@ -109,5 +111,19 @@ public class RetrayedPlugin extends JavaPlugin implements RetrayedAPI {
     @Override
     public PluginPurpose pluginPurpose() {
         return purpose;
+    }
+
+    @Override
+    public ScheduledExecutorService executorService() {
+        return executorService;
+    }
+
+    @Override
+    public EventIteratorFactory eventIteratorFactory() {
+        if(eventIteratorFactory == null) {
+            eventIteratorFactory = new EventIteratorFactory();
+        }
+
+        return eventIteratorFactory;
     }
 }

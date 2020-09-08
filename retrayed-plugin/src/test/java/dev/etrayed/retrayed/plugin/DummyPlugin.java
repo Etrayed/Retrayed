@@ -41,4 +41,9 @@ public class DummyPlugin implements IRetrayedPlugin {
     public EventIteratorFactory eventIteratorFactory() {
         return eventIteratorFactory;
     }
+
+    @Override
+    public Class<?> customStorageClass() {
+        return null;
+    }
 }

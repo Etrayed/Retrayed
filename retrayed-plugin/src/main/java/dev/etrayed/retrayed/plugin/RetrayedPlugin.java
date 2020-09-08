@@ -16,7 +16,9 @@ import org.bukkit.plugin.java.annotation.plugin.author.Author;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 
 /**
@@ -27,20 +29,25 @@ import java.util.logging.Level;
 @DependsOn(@Dependency("ProtocolLib"))
 public class RetrayedPlugin extends JavaPlugin implements RetrayedAPI {
 
-    private ReplayStorage<?> replayStorage;
+    private ReplayStorage<?, ?> replayStorage;
 
     private Replay replay;
 
     private PluginPurpose purpose;
+
+    private ScheduledExecutorService executorService;
 
     @Override
     public void onLoad() {
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
 
+        this.executorService = Executors.newScheduledThreadPool(0);
+
         try {
             this.replayStorage = StorageStrategy.fromString(getConfig().getString("storageStrategy"))
-                    .createStorage(new ReplayStorage.Credentials(this.getConfig().getConfigurationSection("credentials")));
+                    .createStorage(new ReplayStorage.Credentials(this.getConfig().getConfigurationSection("credentials")),
+                            executorService);
         } catch (ReflectiveOperationException e) {
             getLogger().log(Level.SEVERE, "Could not initialize replayStorage: ", e);
 

@@ -1,6 +1,7 @@
 package dev.etrayed.retrayed.plugin.storage;
 
 import dev.etrayed.retrayed.plugin.replay.InternalReplay;
+import dev.etrayed.retrayed.plugin.replay.RecordingReplay;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.Closeable;
@@ -10,11 +11,11 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Etrayed
  */
-public interface ReplayStorage<R extends InternalReplay> extends Closeable {
+public interface ReplayStorage<R extends InternalReplay, S extends RecordingReplay> extends Closeable {
 
-    CompletableFuture<R> load(long replayId);
+    CompletableFuture<R> load(int replayId);
 
-    void save(long replayId);
+    void save(S replay);
 
     StorageStrategy strategy();
 

@@ -11,9 +11,9 @@ public enum StorageStrategy {
 
     private final String key;
 
-    private final Class<? extends ReplayStorage<?, ?>> storageClass;
+    private final Class<? extends ReplayStorage<?>> storageClass;
 
-    StorageStrategy(String key, Class<? extends ReplayStorage<?, ?>> storageClass) {
+    StorageStrategy(String key, Class<? extends ReplayStorage<?>> storageClass) {
         this.key = key;
         this.storageClass = storageClass;
     }
@@ -32,11 +32,11 @@ public enum StorageStrategy {
         return key;
     }
 
-    public Class<? extends ReplayStorage<?, ?>> storageClass() {
+    public Class<? extends ReplayStorage<?>> storageClass() {
         return storageClass;
     }
 
-    public ReplayStorage<?, ?> createStorage(ReplayStorage.Credentials credentials, IRetrayedPlugin plugin) throws ReflectiveOperationException {
+    public ReplayStorage<?> createStorage(ReplayStorage.Credentials credentials, IRetrayedPlugin plugin) throws ReflectiveOperationException {
         return storageClass.getDeclaredConstructor(ReplayStorage.Credentials.class, IRetrayedPlugin.class)
                 .newInstance(credentials, plugin);
     }

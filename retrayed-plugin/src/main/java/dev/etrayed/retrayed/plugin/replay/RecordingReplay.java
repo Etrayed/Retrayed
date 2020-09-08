@@ -9,7 +9,11 @@ import dev.etrayed.retrayed.api.event.BlockingEventIterator;
 public class RecordingReplay extends InternalReplay {
 
     public RecordingReplay(int id) {
-        super(id, MinecraftProtocolVersion.getCurrentVersion());
+        this(id, MinecraftProtocolVersion.getCurrentVersion());
+    }
+
+    public RecordingReplay(int id, int protocolVersion) {
+        super(id, protocolVersion);
     }
 
     @Override

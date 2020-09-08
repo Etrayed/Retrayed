@@ -11,11 +11,11 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Etrayed
  */
-public interface ReplayStorage<R extends InternalReplay, S extends RecordingReplay> extends Closeable {
+public interface ReplayStorage<R extends InternalReplay> extends Closeable {
 
     CompletableFuture<R> load(int replayId);
 
-    void save(S replay);
+    void save(RecordingReplay replay);
 
     StorageStrategy strategy();
 

@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 /**
  * @author Etrayed
  */
-public class MySQLStorage implements ReplayStorage<InternalReplay, RecordingReplay> {
+public class MySQLStorage implements ReplayStorage<InternalReplay> {
 
     private static final String CONNECTION_STRING_FORMAT = "jdbc:mysql://%s:%d/%s?autoReconnect=true";
     private static final String TABLE_NAME = "retrayed_storage";

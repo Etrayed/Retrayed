@@ -30,7 +30,7 @@ import java.util.logging.Level;
 @DependsOn(@Dependency("ProtocolLib"))
 public class RetrayedPlugin extends JavaPlugin implements IRetrayedPlugin {
 
-    private ReplayStorage<?, ?> replayStorage;
+    private ReplayStorage<?> replayStorage;
 
     private Replay replay;
 

@@ -1,7 +1,11 @@
 # Retrayed Config
 
-# How should the recorded data be saved? (Must be one of MYSQL, MONGODB, CASSANDRA or EXTERN)
+# How should the recorded data be saved? (Must be one of MYSQL, MONGODB, CASSANDRA, CUSTOM or EXTERN)
 storageStrategy: MYSQL
+
+# Defines the class used for the "CUSTOM"-storageStrategy defined above.
+# See https://github.com/Etrayed/Retrayed/wiki
+customStorageClass: com.example.exampleproject.ExampleReplayStorage
 
 # The storages' credentials. For EXTERN, only "host" and "port" are required.
 credentials:

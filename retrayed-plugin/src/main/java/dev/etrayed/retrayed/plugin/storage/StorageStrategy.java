@@ -7,7 +7,8 @@ import dev.etrayed.retrayed.plugin.IRetrayedPlugin;
  */
 public enum StorageStrategy {
 
-    MYSQL("MYSQL", MySQLStorage.class);
+    MYSQL("MYSQL", MySQLStorage.class),
+    CUSTOM("CUSTOM", DelegateStorage.class);
 
     private final String key;
 

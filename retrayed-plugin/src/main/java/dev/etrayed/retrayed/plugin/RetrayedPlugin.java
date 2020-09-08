@@ -3,7 +3,6 @@ package dev.etrayed.retrayed.plugin;
 import com.google.common.base.Preconditions;
 import dev.etrayed.retrayed.api.PluginPurpose;
 import dev.etrayed.retrayed.api.Replay;
-import dev.etrayed.retrayed.api.RetrayedAPI;
 import dev.etrayed.retrayed.plugin.event.EventIteratorFactory;
 import dev.etrayed.retrayed.plugin.replay.RecordingReplay;
 import dev.etrayed.retrayed.plugin.storage.ReplayStorage;
@@ -125,5 +124,14 @@ public class RetrayedPlugin extends JavaPlugin implements IRetrayedPlugin {
         }
 
         return eventIteratorFactory;
+    }
+
+    @Override
+    public Class<?> customStorageClass() {
+        try {
+            return Class.forName(getConfig().getString("customStorageClass"));
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
     }
 }

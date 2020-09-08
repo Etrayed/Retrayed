@@ -25,4 +25,6 @@ public interface IRetrayedPlugin extends RetrayedAPI {
     ScheduledExecutorService executorService();
 
     EventIteratorFactory eventIteratorFactory();
+
+    Class<?> customStorageClass();
 }

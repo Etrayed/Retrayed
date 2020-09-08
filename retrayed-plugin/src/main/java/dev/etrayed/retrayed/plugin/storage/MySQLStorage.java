@@ -58,23 +58,21 @@ public class MySQLStorage implements ReplayStorage<InternalReplay> {
         }
     }
 
-    @SuppressWarnings("NestedTryStatement")
+    @SuppressWarnings("JDBCResourceOpenedButNotSafelyClosed")
     @Override
     public CompletableFuture<InternalReplay> load(int replayId) {
         CompletableFuture<InternalReplay> future = new CompletableFuture<>();
 
         plugin.executorService().submit(() -> {
-            try {
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + TABLE_NAME
-                        + " WHERE replay_id=" + replayId);
+            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + TABLE_NAME
+                    + " WHERE replay_id=?")) {
+                statement.setInt(1, replayId);
 
-                statement.closeOnCompletion();
+                ResultSet resultSet = statement.executeQuery();
 
-                try (ResultSet resultSet = statement.executeQuery()) {
-                    if(resultSet.next()) {
-                        future.complete(new PlayingReplay(replayId, resultSet.getInt("mc_protocol_id"),
-                                plugin.eventIteratorFactory().fromString(resultSet.getString("event_data"))));
-                    }
+                if(resultSet.next()) {
+                    future.complete(new PlayingReplay(replayId, resultSet.getInt("mc_protocol_id"),
+                            plugin.eventIteratorFactory().fromString(resultSet.getString("event_data"))));
                 }
             } catch (Exception e) {
                 future.completeExceptionally(e);

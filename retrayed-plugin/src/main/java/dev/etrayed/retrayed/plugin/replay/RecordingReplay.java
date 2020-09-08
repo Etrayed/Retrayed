@@ -8,12 +8,16 @@ import dev.etrayed.retrayed.api.event.BlockingEventIterator;
  */
 public class RecordingReplay extends InternalReplay {
 
-    public RecordingReplay(long id) {
-        super(id, MinecraftProtocolVersion.getCurrentVersion());
+    public RecordingReplay(int id) {
+        this(id, MinecraftProtocolVersion.getCurrentVersion());
+    }
+
+    public RecordingReplay(int id, int protocolVersion) {
+        super(id, protocolVersion);
     }
 
     @Override
     public BlockingEventIterator eventIterator() {
-        throw new IllegalStateException("cannot iterate through a replay which is currently being recorded");
+        return null; // TODO: should be dynamically parsed by current recorded data
     }
 }

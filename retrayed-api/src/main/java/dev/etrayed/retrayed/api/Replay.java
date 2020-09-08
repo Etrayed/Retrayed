@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface Replay {
 
-    long id();
+    int id();
 
     @NotNull
     BlockingEventIterator eventIterator();

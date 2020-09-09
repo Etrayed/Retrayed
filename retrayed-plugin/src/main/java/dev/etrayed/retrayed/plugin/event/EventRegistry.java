@@ -17,12 +17,10 @@ public class EventRegistry {
 
     public EventRegistry() {
         this.eventsById = HashBiMap.create();
-
-        registerEvents();
     }
 
-    private void registerEvents() {
-
+    void registerEvent(int id, Class<? extends AbstractEvent> eventClass) {
+        eventsById.put(id, eventClass);
     }
 
     public AbstractEvent newEvent(int id) {

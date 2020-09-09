@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import dev.etrayed.retrayed.api.PluginPurpose;
 import dev.etrayed.retrayed.api.Replay;
 import dev.etrayed.retrayed.plugin.event.EventIteratorFactory;
+import dev.etrayed.retrayed.plugin.event.EventRegistry;
 import dev.etrayed.retrayed.plugin.replay.RecordingReplay;
 import dev.etrayed.retrayed.plugin.storage.ReplayStorage;
 import dev.etrayed.retrayed.plugin.storage.StorageStrategy;
@@ -38,6 +39,8 @@ public class RetrayedPlugin extends JavaPlugin implements IRetrayedPlugin {
     private ScheduledExecutorService executorService;
 
     private EventIteratorFactory eventIteratorFactory;
+
+    private EventRegistry eventRegistry;
 
     @Override
     public void onLoad() {
@@ -120,7 +123,7 @@ public class RetrayedPlugin extends JavaPlugin implements IRetrayedPlugin {
     @Override
     public EventIteratorFactory eventIteratorFactory() {
         if(eventIteratorFactory == null) {
-            eventIteratorFactory = new EventIteratorFactory();
+            eventIteratorFactory = new EventIteratorFactory(eventRegistry());
         }
 
         return eventIteratorFactory;
@@ -133,5 +136,14 @@ public class RetrayedPlugin extends JavaPlugin implements IRetrayedPlugin {
         } catch (ClassNotFoundException e) {
             return null;
         }
+    }
+
+    @Override
+    public EventRegistry eventRegistry() {
+        if(eventRegistry == null) {
+            eventRegistry = new EventRegistry();
+        }
+
+        return eventRegistry;
     }
 }

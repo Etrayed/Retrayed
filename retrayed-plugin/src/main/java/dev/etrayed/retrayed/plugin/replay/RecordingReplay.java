@@ -1,7 +1,9 @@
 package dev.etrayed.retrayed.plugin.replay;
 
 import com.comphenix.protocol.utility.MinecraftProtocolVersion;
-import dev.etrayed.retrayed.api.event.BlockingEventIterator;
+import dev.etrayed.retrayed.api.event.TimedEvent;
+
+import java.util.ListIterator;
 
 /**
  * @author Etrayed
@@ -17,7 +19,7 @@ public class RecordingReplay extends InternalReplay {
     }
 
     @Override
-    public BlockingEventIterator eventIterator() {
+    public ListIterator<TimedEvent> eventIterator() {
         return null; // TODO: should be dynamically parsed by current recorded data
     }
 }

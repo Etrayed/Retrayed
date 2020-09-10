@@ -35,7 +35,7 @@ public class DelegateStorage implements ReplayStorage<InternalReplay> {
                 Preconditions.checkNotNull(replay, "replay cannot be null");
 
                 future.complete(new PlayingReplay(replay.id, replay.protocolVersion, plugin.eventIteratorFactory()
-                        .fromString(replay.eventData)));
+                        .fromString(replay.eventData), replay.recordedPlayers));
             } catch (Exception e) {
                 future.completeExceptionally(e);
             }
@@ -47,7 +47,7 @@ public class DelegateStorage implements ReplayStorage<InternalReplay> {
     @Override
     public void save(RecordingReplay replay) {
         delegate.save(new CustomReplayStorage.SimplifiedReplay(replay.id(), replay.protocolVersion(),
-                plugin.eventIteratorFactory().toString(replay.eventIterator())));
+                plugin.eventIteratorFactory().toString(replay.eventIterator()), replay.recordedPlayers()));
     }
 
     @Override

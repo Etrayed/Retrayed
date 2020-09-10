@@ -20,12 +20,12 @@ public class DummyEvent extends AbstractEvent {
     }
 
     @Override
-    void storeIn(JsonObject object) {
+    public void storeIn(JsonObject object) {
         object.addProperty("anInt", anInt);
     }
 
     @Override
-    void takeFrom(JsonObject object) {
+    public void takeFrom(JsonObject object) {
         this.anInt = object.get("anInt").getAsInt();
     }
 

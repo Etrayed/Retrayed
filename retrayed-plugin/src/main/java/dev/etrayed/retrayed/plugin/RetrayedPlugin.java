@@ -1,5 +1,6 @@
 package dev.etrayed.retrayed.plugin;
 
+import com.comphenix.protocol.utility.MinecraftProtocolVersion;
 import com.google.common.base.Preconditions;
 import dev.etrayed.retrayed.api.PluginPurpose;
 import dev.etrayed.retrayed.api.Replay;
@@ -80,11 +81,29 @@ public class RetrayedPlugin extends JavaPlugin implements IRetrayedPlugin {
             return CompletableFuture.completedFuture(null);
         }
 
-        CompletableFuture<Replay> future = initReplay0(replayId, purpose);
+        CompletableFuture<Replay> primaryFuture = initReplay0(replayId, purpose);
+        CompletableFuture<Replay> secondaryFuture = new CompletableFuture<>();
 
-        future.thenAccept(loadedReplay -> this.replay = loadedReplay); // TODO CHECK IF SERVER VERSION IS THE SAME
+        executorService.submit(() -> {
+            try {
+                Replay replay = primaryFuture.get();
 
-        return future;
+                if(replay.protocolVersion() != MinecraftProtocolVersion.getCurrentVersion()) {
+                    secondaryFuture.completeExceptionally(new IllegalStateException("Cannot load " + replay.protocolVersion()
+                            + " replay on a " + MinecraftProtocolVersion.getCurrentVersion() + " server."));
+
+                    return;
+                }
+
+                this.replay = replay;
+
+                secondaryFuture.complete(replay);
+            } catch (Throwable throwable) {
+                secondaryFuture.completeExceptionally(throwable);
+            }
+        });
+
+        return secondaryFuture;
     }
 
     @SuppressWarnings("unchecked")

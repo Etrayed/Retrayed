@@ -4,6 +4,7 @@ import dev.etrayed.retrayed.api.PluginPurpose;
 import dev.etrayed.retrayed.api.Replay;
 import dev.etrayed.retrayed.plugin.event.EventIteratorFactory;
 import dev.etrayed.retrayed.plugin.event.EventRegistry;
+import dev.etrayed.retrayed.plugin.storage.TestingCustomStorage;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -45,7 +46,7 @@ public class DummyPlugin implements IRetrayedPlugin {
 
     @Override
     public Class<?> customStorageClass() {
-        return null;
+        return TestingCustomStorage.class;
     }
 
     @Override

@@ -5,10 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.etrayed.retrayed.api.event.TimedEvent;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 /**
  * @author Etrayed
@@ -47,7 +44,7 @@ public class EventIteratorFactory {
 
         event.takeFrom(object.get("storedData").getAsJsonObject());
 
-        return new TimedEvent(object.get("time").getAsLong(), event);
+        return new TimedEvent(object.get("time").getAsLong(), event, UUID.fromString(object.get("receiver").getAsString()));
     }
 
     public String toString(ListIterator<TimedEvent> iterator) {
@@ -58,6 +55,7 @@ public class EventIteratorFactory {
             AbstractEvent abstractEvent = (AbstractEvent) timedEvent.event();
 
             object.addProperty("time", timedEvent.time());
+            object.addProperty("receiver", timedEvent.receiver().toString());
             object.addProperty("id", registry.idByEvent(abstractEvent.getClass()));
 
             JsonObject storedDataObject = new JsonObject();

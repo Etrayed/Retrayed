@@ -4,9 +4,7 @@ import com.comphenix.protocol.utility.MinecraftProtocolVersion;
 import dev.etrayed.retrayed.api.event.TimedEvent;
 import dev.etrayed.retrayed.plugin.event.AbstractEvent;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -23,7 +21,7 @@ public class RecordingReplay extends InternalReplay {
     }
 
     public RecordingReplay(int id, int protocolVersion) {
-        super(id, protocolVersion);
+        super(id, protocolVersion, new ArrayList<>());
 
         this.timedEvents = new CopyOnWriteArrayList<>();
     }
@@ -33,7 +31,11 @@ public class RecordingReplay extends InternalReplay {
         return Collections.unmodifiableList(timedEvents).listIterator();
     }
 
-    public void addEvent(AbstractEvent event) {
-        timedEvents.add(new TimedEvent(lastEventNs == -1 ? 0 : (System.nanoTime() - lastEventNs), event));
+    public void addEvent(AbstractEvent event, UUID receiver) {
+        if(!recordedPlayers.contains(receiver)) {
+            recordedPlayers.add(receiver);
+        }
+
+        timedEvents.add(new TimedEvent(lastEventNs == -1 ? 0 : (System.nanoTime() - lastEventNs), event, receiver));
     }
 }

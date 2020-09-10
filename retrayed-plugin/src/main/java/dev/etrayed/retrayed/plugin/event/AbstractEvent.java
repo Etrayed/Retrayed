@@ -14,7 +14,7 @@ public abstract class AbstractEvent implements Event {
     @Override
     public abstract void undo();
 
-    abstract void storeIn(JsonObject object);
+    public abstract void storeIn(JsonObject object);
 
-    abstract void takeFrom(JsonObject object);
+    public abstract void takeFrom(JsonObject object);
 }

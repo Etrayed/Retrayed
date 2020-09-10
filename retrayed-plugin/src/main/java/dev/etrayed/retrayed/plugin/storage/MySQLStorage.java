@@ -6,10 +6,14 @@ import dev.etrayed.retrayed.plugin.replay.PlayingReplay;
 import dev.etrayed.retrayed.plugin.replay.RecordingReplay;
 
 import java.sql.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * @author Etrayed
@@ -54,6 +58,7 @@ public class MySQLStorage implements ReplayStorage<InternalReplay> {
                     "replay_id INT, " +
                     "mc_protocol_id INT, " +
                     "event_data TEXT, " +
+                    "recorded_players TEXT, " +
                     "PRIMARY KEY (`replay_id`))");
         }
     }
@@ -72,7 +77,8 @@ public class MySQLStorage implements ReplayStorage<InternalReplay> {
 
                 if(resultSet.next()) {
                     future.complete(new PlayingReplay(replayId, resultSet.getInt("mc_protocol_id"),
-                            plugin.eventIteratorFactory().fromString(resultSet.getString("event_data"))));
+                            plugin.eventIteratorFactory().fromString(resultSet.getString("event_data")),
+                            parseUUIDList(resultSet.getString("recorded_players"))));
                 }
             } catch (Exception e) {
                 future.completeExceptionally(e);
@@ -82,19 +88,37 @@ public class MySQLStorage implements ReplayStorage<InternalReplay> {
         return future;
     }
 
+    private List<UUID> parseUUIDList(String sqlString) {
+        return Arrays.stream(sqlString.split(";")).map(s -> {
+            if(s.indexOf(',') == -1) {
+                return null;
+            }
+
+            String[] bits = s.split(",", 2);
+
+            return new UUID(Long.parseLong(bits[0]), Long.parseLong(bits[1]));
+        }).collect(Collectors.toList());
+    }
+
     @Override
     public void save(RecordingReplay replay) {
         try (PreparedStatement statement = connection.prepareStatement("INSERT INTO " + TABLE_NAME
-                + "(replay_id, mc_protocol_id, event_data) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE mc_protocol_id=?, event_data=?")) {
+                + "(replay_id, mc_protocol_id, event_data, recorded_players) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE mc_protocol_id=?, event_data=?, recorded_players=?")) {
             statement.setInt(1, replay.id());
 
             statement.setInt(2, replay.protocolVersion());
-            statement.setInt(4, replay.protocolVersion());
+            statement.setInt(5, replay.protocolVersion());
 
             String eventData = plugin.eventIteratorFactory().toString(replay.eventIterator());
 
             statement.setString(3, eventData);
-            statement.setString(5, eventData);
+            statement.setString(6, eventData);
+
+            String recordedPlayersToString = replay.recordedPlayers().stream().map(uuid -> uuid.getMostSignificantBits()
+                    + "," + uuid.getLeastSignificantBits()).collect(Collectors.joining(";"));
+
+            statement.setString(4, recordedPlayersToString);
+            statement.setString(7, recordedPlayersToString);
 
             statement.executeUpdate();
         } catch (SQLException e) {

@@ -4,6 +4,7 @@ import dev.etrayed.retrayed.api.event.TimedEvent;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.UUID;
 
 /**
  * @author Etrayed
@@ -17,7 +18,8 @@ public class EventIteratorFactoryTest {
         registry.registerEvent(0, DummyEvent.class);
 
         EventIteratorFactory iteratorFactory = new EventIteratorFactory(registry);
-        String toStringOutput = iteratorFactory.toString(Collections.singletonList(new TimedEvent(1000, new DummyEvent())).listIterator());
+        String toStringOutput = iteratorFactory.toString(Collections.singletonList(new TimedEvent(1000, new DummyEvent(),
+                UUID.randomUUID())).listIterator());
 
         System.out.println("toString Output: " + toStringOutput);
         System.out.println("Parsed successfully: " + iteratorFactory.fromString(toStringOutput).hasNext());

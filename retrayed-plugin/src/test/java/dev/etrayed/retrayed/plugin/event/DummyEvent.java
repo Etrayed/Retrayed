@@ -1,6 +1,7 @@
 package dev.etrayed.retrayed.plugin.event;
 
 import com.google.gson.JsonObject;
+import dev.etrayed.retrayed.plugin.stage.ReplayStage;
 
 /**
  * @author Etrayed
@@ -10,12 +11,12 @@ public class DummyEvent extends AbstractEvent {
     private int anInt = 33;
 
     @Override
-    public void recreate() {
+    public void recreate(ReplayStage stage) {
 
     }
 
     @Override
-    public void undo() {
+    public void undo(ReplayStage stage) {
 
     }
 

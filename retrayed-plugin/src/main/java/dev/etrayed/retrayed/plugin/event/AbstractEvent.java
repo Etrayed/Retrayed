@@ -2,17 +2,16 @@ package dev.etrayed.retrayed.plugin.event;
 
 import com.google.gson.JsonObject;
 import dev.etrayed.retrayed.api.event.Event;
+import dev.etrayed.retrayed.plugin.stage.ReplayStage;
 
 /**
  * @author Etrayed
  */
 public abstract class AbstractEvent implements Event {
 
-    @Override
-    public abstract void recreate();
+    public abstract void recreate(ReplayStage stage);
 
-    @Override
-    public abstract void undo();
+    public abstract void undo(ReplayStage stage);
 
     public abstract void storeIn(JsonObject object);
 

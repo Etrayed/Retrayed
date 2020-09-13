@@ -20,6 +20,7 @@ import org.bukkit.util.io.BukkitObjectOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -35,16 +36,30 @@ public abstract class AbstractEvent implements Event {
 
     public abstract void storeIn(JsonObject object);
 
-    protected <T> JsonElement listToArray(List<T> list, Function<T, JsonElement> function) {
-        JsonArray array = new JsonArray();
-
-        if(list == null) {
+    protected <T> JsonElement listToArray(Iterable<T> iterable, Function<T, JsonElement> function) {
+        if(iterable == null) {
             return JsonNull.INSTANCE;
         }
 
-        list.forEach(t -> array.add(function.apply(t)));
+        JsonArray array = new JsonArray();
+
+        iterable.forEach(t -> array.add(function.apply(t)));
 
         return array;
+    }
+
+    protected <T> JsonElement toJsonArray(Function<T, JsonElement> function, T[] array) {
+        if(array == null) {
+            return JsonNull.INSTANCE;
+        }
+
+        JsonArray jsonArray = new JsonArray();
+
+        for (T t : array) {
+            jsonArray.add(function.apply(t));
+        }
+
+        return jsonArray;
     }
 
     protected JsonObject serializeWatchableObjectValue(WrappedWatchableObject watchableObject) throws IOException {
@@ -130,6 +145,21 @@ public abstract class AbstractEvent implements Event {
         element.getAsJsonArray().forEach(jsonElement -> list.add(function.apply(jsonElement)));
 
         return list;
+    }
+
+    protected <T> T[] fromJsonArray(JsonElement element, Function<JsonElement, T> function, Function<Integer, T[]> arrayCreator) {
+        if(!element.isJsonArray()) {
+            return null;
+        }
+
+        JsonArray jsonArray = element.getAsJsonArray();
+        T[] array = arrayCreator.apply(jsonArray.size());
+
+        for (int i = 0; i < jsonArray.size(); i++) {
+            array[i] = function.apply(jsonArray.get(i));
+        }
+
+        return array;
     }
 
     protected Object deserializeWatchableObjectValue(JsonObject object) throws IOException, ClassNotFoundException {

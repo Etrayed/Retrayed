@@ -70,7 +70,7 @@ public class SpawnPlayerEvent extends AbstractEvent {
         }
 
         stage.sendPacket(spawnPlayerPacket);
-        stage.spawnEntity(new ReplayPlayer(stage.nextEntityId(), new Position(spawnX, spawnY, spawnZ, yaw, pitch), uniqueId));
+        stage.spawnEntity(new ReplayPlayer(stage.nextEntityId(), new Position(spawnX, spawnY, spawnZ, yaw, pitch), uniqueId, this));
     }
 
     @Override

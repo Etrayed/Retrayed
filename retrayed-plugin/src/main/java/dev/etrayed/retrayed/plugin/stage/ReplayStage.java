@@ -1,7 +1,7 @@
 package dev.etrayed.retrayed.plugin.stage;
 
 import com.comphenix.protocol.events.PacketContainer;
-import dev.etrayed.retrayed.plugin.stage.entity.ReplayEntity;
+import dev.etrayed.retrayed.plugin.stage.entity.AbstractReplayEntity;
 
 import java.util.Map;
 import java.util.Optional;
@@ -13,7 +13,7 @@ import java.util.function.Consumer;
  */
 public class ReplayStage {
 
-    private final Map<Integer, ReplayEntity> entitiesById;
+    private final Map<Integer, AbstractReplayEntity> entitiesById;
 
     private final Consumer<PacketContainer> packetConsumer;
 
@@ -22,15 +22,15 @@ public class ReplayStage {
         this.packetConsumer = packetConsumer;
     }
 
-    public Optional<ReplayEntity> findById(int id) {
+    public Optional<AbstractReplayEntity> findById(int id) {
         return Optional.ofNullable(findByIdUnchecked(id));
     }
 
-    public ReplayEntity findByIdUnchecked(int id) {
+    public AbstractReplayEntity findByIdUnchecked(int id) {
         return entitiesById.get(id);
     }
 
-    public void spawnEntity(ReplayEntity entity) {
+    public void spawnEntity(AbstractReplayEntity entity) {
         entitiesById.put(entity.id(), entity);
     }
 

@@ -2,6 +2,7 @@ package dev.etrayed.retrayed.plugin.event;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import dev.etrayed.retrayed.plugin.event.entity.RemoveEntityEvent;
 import dev.etrayed.retrayed.plugin.event.entity.SpawnPlayerEvent;
 
 import java.util.logging.Level;
@@ -20,6 +21,7 @@ public class EventRegistry {
         this.eventsById = HashBiMap.create();
 
         registerEvent(1, SpawnPlayerEvent.class);
+        registerEvent(2, RemoveEntityEvent.class);
     }
 
     void registerEvent(int id, Class<? extends AbstractEvent> eventClass) {

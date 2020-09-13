@@ -13,12 +13,20 @@ public class Position {
         this(x, y, z, (byte) 0, (byte) 0);
     }
 
+    public Position(double x, double y, double z, float yaw, float pitch) {
+        this(x, y, z, toByteRotation(yaw), toByteRotation(pitch));
+    }
+
     public Position(double x, double y, double z, byte yaw, byte pitch) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.yaw = yaw;
         this.pitch = pitch;
+    }
+
+    private static byte toByteRotation(float rotation) {
+        return (byte) ((int) (rotation * 256.0F / 360.0F));
     }
 
     public double x() {

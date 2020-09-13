@@ -6,13 +6,11 @@ import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 import com.comphenix.protocol.wrappers.nbt.io.NbtTextSerializer;
 import com.google.common.base.Optional;
 import com.google.common.io.BaseEncoding;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import dev.etrayed.retrayed.api.event.Event;
 import dev.etrayed.retrayed.plugin.stage.ReplayStage;
 import org.bukkit.Material;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
@@ -20,7 +18,6 @@ import org.bukkit.util.io.BukkitObjectOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -34,7 +31,7 @@ public abstract class AbstractEvent implements Event {
 
     public abstract void undo(ReplayStage stage);
 
-    public abstract void storeIn(JsonObject object);
+    public abstract void storeIn(JsonObject object) throws Exception;
 
     protected <T> JsonElement listToArray(Iterable<T> iterable, Function<T, JsonElement> function) {
         if(iterable == null) {
@@ -86,13 +83,7 @@ public abstract class AbstractEvent implements Event {
         } else if(value instanceof ItemStack) {
             type = 3;
 
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-            try (BukkitObjectOutputStream bukkitOutputStream = new BukkitObjectOutputStream(outputStream)) {
-                bukkitOutputStream.writeObject(value);
-
-                object.addProperty("encoded", BaseEncoding.base64().encode(outputStream.toByteArray()));
-            }
+            object.addProperty("encoded", configurationSerializableToString((ConfigurationSerializable) value));
         } else if(value instanceof WrappedBlockData) {
             type = 4;
 
@@ -133,7 +124,17 @@ public abstract class AbstractEvent implements Event {
         return object;
     }
 
-    public abstract void takeFrom(JsonObject object);
+    protected String configurationSerializableToString(ConfigurationSerializable serializable) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try (BukkitObjectOutputStream bukkitOutputStream = new BukkitObjectOutputStream(outputStream)) {
+            bukkitOutputStream.writeObject(serializable);
+
+            return BaseEncoding.base64().encode(outputStream.toByteArray());
+        }
+    }
+
+    public abstract void takeFrom(JsonObject object) throws Exception;
 
     protected <T> List<T> arrayToList(JsonElement element, Function<JsonElement, T> function) {
         if(!element.isJsonArray()) {
@@ -170,11 +171,7 @@ public abstract class AbstractEvent implements Event {
         } else if(type == 2) {
             return WrappedChatComponent.fromJson(object.get("json").getAsString());
         } else if(type == 3) {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(BaseEncoding.base64().decode("encoded"));
-
-            try (BukkitObjectInputStream bukkitInputStream = new BukkitObjectInputStream(inputStream)) {
-                return bukkitInputStream.readObject();
-            }
+            return configurationSerializableFromString(object.get("encoded").getAsString());
         } else if(type == 4) {
             return WrappedBlockData.createData(Material.valueOf(object.get("type").getAsString()), object.get("data").getAsInt());
         } else if(type == 5) {
@@ -189,6 +186,14 @@ public abstract class AbstractEvent implements Event {
             return new ChunkPosition(object.get("x").getAsInt(), object.get("y").getAsInt(), object.get("z").getAsInt());
         } else {
             return null;
+        }
+    }
+
+    protected ConfigurationSerializable configurationSerializableFromString(String encoded) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(BaseEncoding.base64().decode(encoded));
+
+        try (BukkitObjectInputStream bukkitInputStream = new BukkitObjectInputStream(inputStream)) {
+            return (ConfigurationSerializable) bukkitInputStream.readObject();
         }
     }
 }

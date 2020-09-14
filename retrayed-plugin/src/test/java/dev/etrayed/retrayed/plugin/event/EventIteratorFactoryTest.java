@@ -12,7 +12,7 @@ import java.util.UUID;
 public class EventIteratorFactoryTest {
 
     @Test
-    public void testFactory() {
+    public void testFactory() throws Exception {
         EventRegistry registry = new EventRegistry();
 
         registry.registerEvent(0, DummyEvent.class);

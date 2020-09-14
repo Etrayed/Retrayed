@@ -1,6 +1,7 @@
 package dev.etrayed.retrayed.plugin.event;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.etrayed.retrayed.api.event.TimedEvent;
@@ -20,7 +21,7 @@ public class EventIteratorFactory {
         this.registry = registry;
     }
 
-    public ListIterator<TimedEvent> fromString(String json) {
+    public ListIterator<TimedEvent> fromString(String json) throws Exception {
         if(parser == null) {
             parser = new JsonParser();
         }
@@ -28,18 +29,18 @@ public class EventIteratorFactory {
         JsonArray array = parser.parse(json).getAsJsonArray();
         List<TimedEvent> events = new ArrayList<>();
 
-        array.forEach(element -> {
+        for (JsonElement element : array) {
             if(!element.isJsonObject()) {
-                return;
+                continue;
             }
 
             events.add(parseTimedEvent(element.getAsJsonObject()));
-        });
+        }
 
         return Collections.unmodifiableList(events).listIterator();
     }
 
-    private TimedEvent parseTimedEvent(JsonObject object) {
+    private TimedEvent parseTimedEvent(JsonObject object) throws Exception {
         AbstractEvent event = registry.newEvent(object.get("id").getAsInt());
 
         event.takeFrom(object.get("storedData").getAsJsonObject());
@@ -47,10 +48,11 @@ public class EventIteratorFactory {
         return new TimedEvent(object.get("time").getAsLong(), event, UUID.fromString(object.get("receiver").getAsString()));
     }
 
-    public String toString(ListIterator<TimedEvent> iterator) {
+    public String toString(ListIterator<TimedEvent> iterator) throws Exception {
         JsonArray array = new JsonArray();
 
-        iterator.forEachRemaining(timedEvent -> {
+        while (iterator.hasNext()) {
+            TimedEvent timedEvent = iterator.next();
             JsonObject object = new JsonObject();
             AbstractEvent abstractEvent = (AbstractEvent) timedEvent.event();
 
@@ -65,7 +67,7 @@ public class EventIteratorFactory {
             object.add("storedData", storedDataObject);
 
             array.add(object);
-        });
+        }
 
         return array.toString();
     }

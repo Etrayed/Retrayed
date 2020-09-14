@@ -121,7 +121,7 @@ public class MySQLStorage implements ReplayStorage<InternalReplay> {
             statement.setString(7, recordedPlayersToString);
 
             statement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

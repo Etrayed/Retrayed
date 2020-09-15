@@ -22,13 +22,13 @@ public class DummyEvent extends AbstractEvent {
     }
 
     @Override
-    public void storeIn(BukkitObjectOutputStream outputStream) {
-        outputStream.addProperty("anInt", anInt);
+    public void storeIn(BukkitObjectOutputStream outputStream) throws Exception {
+        outputStream.writeInt(anInt);
     }
 
     @Override
-    public void takeFrom(BukkitObjectInputStream object) {
-        this.anInt = object.get("anInt").getAsInt();
+    public void takeFrom(BukkitObjectInputStream inputStream) throws Exception {
+        this.anInt = inputStream.readInt();
     }
 
     @Override

@@ -39,18 +39,19 @@ public class EventIteratorFactory {
 
     public String toString(ListIterator<TimedEvent> iterator) throws Exception {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        BukkitObjectOutputStream bukkitOutputStream = new BukkitObjectOutputStream(outputStream);
 
-        while (iterator.hasNext()) {
-            TimedEvent timedEvent = iterator.next();
-            AbstractEvent abstractEvent = (AbstractEvent) timedEvent.event();
+        try (BukkitObjectOutputStream bukkitOutputStream = new BukkitObjectOutputStream(outputStream)) {
+            while (iterator.hasNext()) {
+                TimedEvent timedEvent = iterator.next();
+                AbstractEvent abstractEvent = (AbstractEvent) timedEvent.event();
 
-            bukkitOutputStream.writeInt(registry.idByEvent(abstractEvent.getClass()));
-            bukkitOutputStream.writeLong(timedEvent.time());
-            bukkitOutputStream.writeLong(timedEvent.receiver().getMostSignificantBits());
-            bukkitOutputStream.writeLong(timedEvent.receiver().getLeastSignificantBits());
+                bukkitOutputStream.writeInt(registry.idByEvent(abstractEvent.getClass()));
+                bukkitOutputStream.writeLong(timedEvent.time());
+                bukkitOutputStream.writeLong(timedEvent.receiver().getMostSignificantBits());
+                bukkitOutputStream.writeLong(timedEvent.receiver().getLeastSignificantBits());
 
-            abstractEvent.storeIn(bukkitOutputStream);
+                abstractEvent.storeIn(bukkitOutputStream);
+            }
         }
 
         return BaseEncoding.base64().encode(outputStream.toByteArray());

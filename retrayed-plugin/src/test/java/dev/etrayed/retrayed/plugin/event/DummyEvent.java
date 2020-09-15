@@ -1,7 +1,8 @@
 package dev.etrayed.retrayed.plugin.event;
 
-import com.google.gson.JsonObject;
 import dev.etrayed.retrayed.plugin.stage.ReplayStage;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 
 /**
  * @author Etrayed
@@ -21,12 +22,12 @@ public class DummyEvent extends AbstractEvent {
     }
 
     @Override
-    public void storeIn(JsonObject object) {
-        object.addProperty("anInt", anInt);
+    public void storeIn(BukkitObjectOutputStream outputStream) {
+        outputStream.addProperty("anInt", anInt);
     }
 
     @Override
-    public void takeFrom(JsonObject object) {
+    public void takeFrom(BukkitObjectInputStream object) {
         this.anInt = object.get("anInt").getAsInt();
     }
 

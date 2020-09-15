@@ -4,10 +4,11 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.google.gson.JsonObject;
 import dev.etrayed.retrayed.plugin.event.AbstractEvent;
 import dev.etrayed.retrayed.plugin.stage.ReplayStage;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 
 /**
  * @author Etrayed
@@ -74,17 +75,17 @@ public class EntityEquipmentEvent extends AbstractEvent {
     }
 
     @Override
-    public void storeIn(JsonObject object) throws Exception {
-        object.addProperty("entityId", entityId);
-        object.addProperty("equipmentSlot", equipmentSlot.ordinal());
-        object.addProperty("itemStack", configurationSerializableToString(itemStack));
+    public void storeIn(BukkitObjectOutputStream outputStream) throws Exception {
+        outputStream.writeInt(entityId);
+        outputStream.writeObject(equipmentSlot);
+        outputStream.writeObject(itemStack);
     }
 
     @Override
-    public void takeFrom(JsonObject object) throws Exception {
-        this.entityId = object.get("entityId").getAsInt();
-        this.equipmentSlot = VersionedEquipmentSlot.values()[object.get("equipmentSlot").getAsInt()];
-        this.itemStack = (ItemStack) configurationSerializableFromString(object.get("itemStack").getAsString());
+    public void takeFrom(BukkitObjectInputStream inputStream) throws Exception {
+        this.entityId = inputStream.readInt();
+        this.equipmentSlot = (VersionedEquipmentSlot) inputStream.readObject();
+        this.itemStack = (ItemStack) inputStream.readObject();
     }
 
     public enum VersionedEquipmentSlot {

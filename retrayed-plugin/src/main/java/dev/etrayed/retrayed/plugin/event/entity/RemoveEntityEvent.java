@@ -3,12 +3,10 @@ package dev.etrayed.retrayed.plugin.event.entity;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
-import com.google.common.primitives.Ints;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import dev.etrayed.retrayed.plugin.event.AbstractEvent;
 import dev.etrayed.retrayed.plugin.stage.ReplayStage;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,12 +57,12 @@ public class RemoveEntityEvent extends AbstractEvent {
     }
 
     @Override
-    public void storeIn(JsonObject object) {
-        object.add("entityIds", listToArray(Ints.asList(entityIds), JsonPrimitive::new));
+    public void storeIn(BukkitObjectOutputStream outputStream) throws Exception {
+        outputStream.writeObject(entityIds);
     }
 
     @Override
-    public void takeFrom(JsonObject object) {
-        this.entityIds = Ints.toArray(arrayToList(object.get("entityIds"), JsonElement::getAsInt));
+    public void takeFrom(BukkitObjectInputStream inputStream) throws Exception {
+        this.entityIds = (int[]) inputStream.readObject();
     }
 }

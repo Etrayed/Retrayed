@@ -1,11 +1,12 @@
 package dev.etrayed.retrayed.plugin.event;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.common.io.BaseEncoding;
 import dev.etrayed.retrayed.api.event.TimedEvent;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.*;
 
 /**
@@ -15,60 +16,44 @@ public class EventIteratorFactory {
 
     private final EventRegistry registry;
 
-    private JsonParser parser;
-
     public EventIteratorFactory(EventRegistry registry) {
         this.registry = registry;
     }
 
-    public ListIterator<TimedEvent> fromString(String json) throws Exception {
-        if(parser == null) {
-            parser = new JsonParser();
-        }
-
-        JsonArray array = parser.parse(json).getAsJsonArray();
+    public ListIterator<TimedEvent> fromString(String encoded) throws Exception {
         List<TimedEvent> events = new ArrayList<>();
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(BaseEncoding.base64().decode(encoded));
 
-        for (JsonElement element : array) {
-            if(!element.isJsonObject()) {
-                continue;
-            }
+        try (BukkitObjectInputStream bukkitInputStream = new BukkitObjectInputStream(inputStream)) {
+            AbstractEvent event = registry.newEvent(bukkitInputStream.readInt());
+            TimedEvent timedEvent = new TimedEvent(bukkitInputStream.readLong(), event, new UUID(bukkitInputStream.readLong(),
+                    bukkitInputStream.readLong()));
 
-            events.add(parseTimedEvent(element.getAsJsonObject()));
+            event.takeFrom(bukkitInputStream);
+
+            events.add(timedEvent);
         }
 
         return Collections.unmodifiableList(events).listIterator();
     }
 
-    private TimedEvent parseTimedEvent(JsonObject object) throws Exception {
-        AbstractEvent event = registry.newEvent(object.get("id").getAsInt());
-
-        event.takeFrom(object.get("storedData").getAsJsonObject());
-
-        return new TimedEvent(object.get("time").getAsLong(), event, UUID.fromString(object.get("receiver").getAsString()));
-    }
-
     public String toString(ListIterator<TimedEvent> iterator) throws Exception {
-        JsonArray array = new JsonArray();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        while (iterator.hasNext()) {
-            TimedEvent timedEvent = iterator.next();
-            JsonObject object = new JsonObject();
-            AbstractEvent abstractEvent = (AbstractEvent) timedEvent.event();
+        try (BukkitObjectOutputStream bukkitOutputStream = new BukkitObjectOutputStream(outputStream)) {
+            while (iterator.hasNext()) {
+                TimedEvent timedEvent = iterator.next();
+                AbstractEvent abstractEvent = (AbstractEvent) timedEvent.event();
 
-            object.addProperty("time", timedEvent.time());
-            object.addProperty("receiver", timedEvent.receiver().toString());
-            object.addProperty("id", registry.idByEvent(abstractEvent.getClass()));
+                bukkitOutputStream.writeInt(registry.idByEvent(abstractEvent.getClass()));
+                bukkitOutputStream.writeLong(timedEvent.time());
+                bukkitOutputStream.writeLong(timedEvent.receiver().getMostSignificantBits());
+                bukkitOutputStream.writeLong(timedEvent.receiver().getLeastSignificantBits());
 
-            JsonObject storedDataObject = new JsonObject();
-
-            abstractEvent.storeIn(storedDataObject);
-
-            object.add("storedData", storedDataObject);
-
-            array.add(object);
+                abstractEvent.storeIn(bukkitOutputStream);
+            }
         }
 
-        return array.toString();
+        return BaseEncoding.base64().encode(outputStream.toByteArray());
     }
 }

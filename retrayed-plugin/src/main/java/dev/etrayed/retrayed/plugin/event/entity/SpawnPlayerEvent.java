@@ -4,14 +4,14 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
 import dev.etrayed.retrayed.plugin.event.AbstractEvent;
 import dev.etrayed.retrayed.plugin.stage.Position;
 import dev.etrayed.retrayed.plugin.stage.ReplayStage;
 import dev.etrayed.retrayed.plugin.stage.entity.ReplayPlayer;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -84,58 +84,48 @@ public class SpawnPlayerEvent extends AbstractEvent {
     }
 
     @Override
-    public void storeIn(JsonObject object) {
-        object.addProperty("entityId", entityId);
-        object.addProperty("uniqueId", uniqueId.toString());
-        object.addProperty("spawnX", spawnX);
-        object.addProperty("spawnY", spawnY);
-        object.addProperty("spawnZ", spawnZ);
-        object.addProperty("yaw", yaw);
-        object.addProperty("pitch", pitch);
-        object.addProperty("itemInHand", itemInHand);
-        object.add("watchableObjects", listToArray(watchableObjects, watchableObject -> {
-            JsonObject watchableJsonObject = new JsonObject();
+    public void storeIn(BukkitObjectOutputStream outputStream) throws Exception {
+        outputStream.writeInt(entityId);
+        outputStream.writeLong(uniqueId.getMostSignificantBits());
+        outputStream.writeLong(uniqueId.getLeastSignificantBits());
+        outputStream.writeDouble(spawnX);
+        outputStream.writeDouble(spawnY);
+        outputStream.writeDouble(spawnZ);
+        outputStream.writeByte(yaw);
+        outputStream.writeByte(pitch);
+        outputStream.writeInt(itemInHand);
+        outputStream.writeInt(watchableObjects.size());
 
-            watchableJsonObject.addProperty("index", watchableObject.getIndex());
-            watchableJsonObject.addProperty("dirtyState", watchableObject.getDirtyState());
+        for (WrappedWatchableObject watchableObject : watchableObjects) {
+            outputStream.writeInt(watchableObject.getIndex());
 
-            try {
-                watchableJsonObject.add("value", serializeWatchableObjectValue(watchableObject));
-            } catch (IOException e) {
-                e.printStackTrace();
+            serializeWatchableObjectValue(watchableObject, outputStream);
 
-                watchableJsonObject.add("value", JsonNull.INSTANCE);
-            }
-
-            return watchableJsonObject;
-        }));
+            outputStream.writeBoolean(watchableObject.getDirtyState());
+        }
     }
 
     @Override
-    public void takeFrom(JsonObject object) {
-        this.entityId = object.get("entityId").getAsInt();
-        this.uniqueId = UUID.fromString(object.get("uniqueId").getAsString());
-        this.spawnX = object.get("spawnX").getAsDouble();
-        this.spawnY = object.get("spawnY").getAsDouble();
-        this.spawnZ = object.get("spawnZ").getAsDouble();
-        this.yaw = object.get("yaw").getAsByte();
-        this.pitch = object.get("pitch").getAsByte();
-        this.itemInHand = object.get("itemInHand").getAsInt();
-        this.watchableObjects = arrayToList(object.get("watchableObjects"), element -> {
-            JsonObject watchableObject = element.getAsJsonObject();
+    public void takeFrom(BukkitObjectInputStream inputStream) throws Exception {
+        this.entityId = inputStream.readInt();
+        this.uniqueId = new UUID(inputStream.readLong(), inputStream.readLong());
+        this.spawnX = inputStream.readDouble();
+        this.spawnY = inputStream.readDouble();
+        this.spawnZ = inputStream.readDouble();
+        this.yaw = inputStream.readByte();
+        this.pitch = inputStream.readByte();
+        this.itemInHand = inputStream.readInt();
 
-            try {
-                WrappedWatchableObject wrappedWatchableObject = new WrappedWatchableObject(watchableObject.get("index").getAsInt(),
-                        deserializeWatchableObjectValue(watchableObject.get("value").getAsJsonObject()));
+        int watchableObjectsSize = inputStream.readInt();
 
-                wrappedWatchableObject.setDirtyState(watchableObject.get("dirtyState").getAsBoolean());
+        this.watchableObjects = new ArrayList<>(watchableObjectsSize);
 
-                return wrappedWatchableObject;
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+        for (int i = 0; i < watchableObjectsSize; i++) {
+            WrappedWatchableObject object = new WrappedWatchableObject(inputStream.readInt(), deserializeWatchableObjectValue(inputStream));
 
-                return null;
-            }
-        });
+            object.setDirtyState(inputStream.readBoolean());
+
+            watchableObjects.add(object);
+        }
     }
 }

@@ -24,6 +24,8 @@ public interface ReplayEntity {
 
     void setWatchableValue(int index, Object value);
 
+    WatchableObject watchableObject(int index);
+
     Object watchableValue(int index);
 
     Collection<WatchableObject> watchableObjects();

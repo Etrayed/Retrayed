@@ -3,6 +3,7 @@ package dev.etrayed.retrayed.plugin.event;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import dev.etrayed.retrayed.plugin.event.entity.EntityEquipmentEvent;
+import dev.etrayed.retrayed.plugin.event.entity.EntityMetadataEvent;
 import dev.etrayed.retrayed.plugin.event.entity.RemoveEntityEvent;
 import dev.etrayed.retrayed.plugin.event.entity.SpawnPlayerEvent;
 
@@ -24,6 +25,7 @@ public class EventRegistry {
         registerEvent(1, SpawnPlayerEvent.class);
         registerEvent(2, RemoveEntityEvent.class);
         registerEvent(3, EntityEquipmentEvent.class);
+        registerEvent(4, EntityMetadataEvent.class);
     }
 
     void registerEvent(int id, Class<? extends AbstractEvent> eventClass) {

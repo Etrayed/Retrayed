@@ -66,7 +66,16 @@ public abstract class AbstractReplayEntity implements ReplayEntity {
 
     @Override
     public final void setWatchableValue(int index, Object value) {
-        watchableObjects.computeIfAbsent(index, WatchableObject::new).setValue(value);
+        if(value == null) {
+            watchableObjects.remove(index);
+        } else {
+            watchableObjects.computeIfAbsent(index, WatchableObject::new).setValue(value);
+        }
+    }
+
+    @Override
+    public WatchableObject watchableObject(int index) {
+        return watchableObjects.get(index);
     }
 
     @Override

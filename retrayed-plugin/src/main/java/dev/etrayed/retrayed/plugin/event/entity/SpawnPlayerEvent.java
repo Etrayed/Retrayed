@@ -8,9 +8,9 @@ import dev.etrayed.retrayed.plugin.event.AbstractEvent;
 import dev.etrayed.retrayed.plugin.stage.Position;
 import dev.etrayed.retrayed.plugin.stage.ReplayStage;
 import dev.etrayed.retrayed.plugin.stage.entity.ReplayPlayer;
-import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -84,7 +84,7 @@ public class SpawnPlayerEvent extends AbstractEvent {
     }
 
     @Override
-    public void storeIn(BukkitObjectOutputStream outputStream) throws Exception {
+    public void storeIn(ObjectOutputStream outputStream) throws Exception {
         outputStream.writeInt(entityId);
         outputStream.writeLong(uniqueId.getMostSignificantBits());
         outputStream.writeLong(uniqueId.getLeastSignificantBits());
@@ -106,7 +106,7 @@ public class SpawnPlayerEvent extends AbstractEvent {
     }
 
     @Override
-    public void takeFrom(BukkitObjectInputStream inputStream) throws Exception {
+    public void takeFrom(ObjectInputStream inputStream) throws Exception {
         this.entityId = inputStream.readInt();
         this.uniqueId = new UUID(inputStream.readLong(), inputStream.readLong());
         this.spawnX = inputStream.readDouble();

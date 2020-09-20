@@ -9,10 +9,10 @@ import dev.etrayed.retrayed.api.event.Event;
 import dev.etrayed.retrayed.plugin.stage.ReplayStage;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 /**
  * @author Etrayed
@@ -23,14 +23,14 @@ public abstract class AbstractEvent implements Event {
 
     public abstract void undo(ReplayStage stage);
 
-    public abstract void storeIn(BukkitObjectOutputStream outputStream) throws Exception;
+    public abstract void storeIn(ObjectOutputStream outputStream) throws Exception;
 
-    protected void serializeWatchableObjectValue(WrappedWatchableObject watchableObject, BukkitObjectOutputStream outputStream) throws IOException {
+    protected void serializeWatchableObjectValue(WrappedWatchableObject watchableObject, ObjectOutputStream outputStream) throws IOException {
         serializeWatchableObjectValue0(watchableObject.getValue(), outputStream);
     }
 
     @SuppressWarnings("unchecked")
-    private void serializeWatchableObjectValue0(Object value, BukkitObjectOutputStream outputStream) throws IOException {
+    private void serializeWatchableObjectValue0(Object value, ObjectOutputStream outputStream) throws IOException {
         if(value instanceof Vector3F) {
             outputStream.writeByte(1);
             outputStream.writeFloat(((Vector3F) value).getX());
@@ -77,9 +77,9 @@ public abstract class AbstractEvent implements Event {
         }
     }
 
-    public abstract void takeFrom(BukkitObjectInputStream inputStream) throws Exception;
+    public abstract void takeFrom(ObjectInputStream inputStream) throws Exception;
 
-    protected Object deserializeWatchableObjectValue(BukkitObjectInputStream inputStream) throws IOException, ClassNotFoundException {
+    protected Object deserializeWatchableObjectValue(ObjectInputStream inputStream) throws IOException, ClassNotFoundException {
         int type = inputStream.read();
 
         if(type == 1) {

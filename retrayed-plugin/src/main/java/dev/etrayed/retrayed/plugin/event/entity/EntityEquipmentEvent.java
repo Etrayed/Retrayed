@@ -7,8 +7,9 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import dev.etrayed.retrayed.plugin.event.AbstractEvent;
 import dev.etrayed.retrayed.plugin.stage.ReplayStage;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
+
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 /**
  * @author Etrayed
@@ -75,14 +76,14 @@ public class EntityEquipmentEvent extends AbstractEvent {
     }
 
     @Override
-    public void storeIn(BukkitObjectOutputStream outputStream) throws Exception {
+    public void storeIn(ObjectOutputStream outputStream) throws Exception {
         outputStream.writeInt(entityId);
         outputStream.writeObject(equipmentSlot);
         outputStream.writeObject(itemStack);
     }
 
     @Override
-    public void takeFrom(BukkitObjectInputStream inputStream) throws Exception {
+    public void takeFrom(ObjectInputStream inputStream) throws Exception {
         this.entityId = inputStream.readInt();
         this.equipmentSlot = (VersionedEquipmentSlot) inputStream.readObject();
         this.itemStack = (ItemStack) inputStream.readObject();

@@ -5,6 +5,8 @@ import dev.etrayed.retrayed.plugin.event.entity.EntityEquipmentEvent;
 import dev.etrayed.retrayed.plugin.stage.Position;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Collection;
+
 /**
  * @author Etrayed
  */
@@ -19,4 +21,10 @@ public interface ReplayEntity {
     void setEquipment(EntityEquipmentEvent.VersionedEquipmentSlot equipmentSlot, ItemStack itemStack);
 
     ItemStack equipment(EntityEquipmentEvent.VersionedEquipmentSlot equipmentSlot);
+
+    void setWatchableValue(int index, Object value);
+
+    Object watchableValue(int index);
+
+    Collection<WatchableObject> watchableObjects();
 }

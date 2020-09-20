@@ -3,17 +3,18 @@ package dev.etrayed.retrayed.plugin.event.entity;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import dev.etrayed.retrayed.plugin.event.AbstractEvent;
 import dev.etrayed.retrayed.plugin.stage.Position;
 import dev.etrayed.retrayed.plugin.stage.ReplayStage;
 import dev.etrayed.retrayed.plugin.stage.entity.ReplayPlayer;
-import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
+import dev.etrayed.retrayed.plugin.stage.entity.WatchableObject;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * @author Etrayed
@@ -30,7 +31,7 @@ public class SpawnPlayerEvent extends AbstractEvent {
 
     private int itemInHand;
 
-    private List<WrappedWatchableObject> watchableObjects;
+    private List<WatchableObject> watchableObjects;
 
     public SpawnPlayerEvent() {
     }
@@ -40,7 +41,7 @@ public class SpawnPlayerEvent extends AbstractEvent {
     }
 
     public SpawnPlayerEvent(int entityId, UUID uniqueId, double spawnX, double spawnY, double spawnZ, byte yaw, byte pitch,
-                            int itemInHand, List<WrappedWatchableObject> watchableObjects) {
+                            int itemInHand, List<WatchableObject> watchableObjects) {
         this.entityId = entityId;
         this.uniqueId = uniqueId;
         this.spawnX = spawnX;
@@ -66,11 +67,13 @@ public class SpawnPlayerEvent extends AbstractEvent {
         }
 
         if(watchableObjects != null) {
-            spawnPlayerPacket.getWatchableCollectionModifier().write(0, watchableObjects);
+            spawnPlayerPacket.getWatchableCollectionModifier().write(0, watchableObjects.stream()
+                    .map(WatchableObject::wrap).collect(Collectors.toList()));
         }
 
         stage.sendPacket(spawnPlayerPacket);
-        stage.spawnEntity(new ReplayPlayer(stage.nextEntityId(), new Position(spawnX, spawnY, spawnZ, yaw, pitch), uniqueId, this));
+        stage.spawnEntity(new ReplayPlayer(stage.nextEntityId(), new Position(spawnX, spawnY, spawnZ, yaw, pitch), uniqueId,
+                this, watchableObjects));
     }
 
     @Override
@@ -84,7 +87,7 @@ public class SpawnPlayerEvent extends AbstractEvent {
     }
 
     @Override
-    public void storeIn(BukkitObjectOutputStream outputStream) throws Exception {
+    public void storeIn(ObjectOutputStream outputStream) throws Exception {
         outputStream.writeInt(entityId);
         outputStream.writeLong(uniqueId.getMostSignificantBits());
         outputStream.writeLong(uniqueId.getLeastSignificantBits());
@@ -96,17 +99,13 @@ public class SpawnPlayerEvent extends AbstractEvent {
         outputStream.writeInt(itemInHand);
         outputStream.writeInt(watchableObjects.size());
 
-        for (WrappedWatchableObject watchableObject : watchableObjects) {
-            outputStream.writeInt(watchableObject.getIndex());
-
-            serializeWatchableObjectValue(watchableObject, outputStream);
-
-            outputStream.writeBoolean(watchableObject.getDirtyState());
+        for (WatchableObject watchableObject : watchableObjects) {
+            watchableObject.serializeTo(outputStream);
         }
     }
 
     @Override
-    public void takeFrom(BukkitObjectInputStream inputStream) throws Exception {
+    public void takeFrom(ObjectInputStream inputStream) throws Exception {
         this.entityId = inputStream.readInt();
         this.uniqueId = new UUID(inputStream.readLong(), inputStream.readLong());
         this.spawnX = inputStream.readDouble();
@@ -121,11 +120,7 @@ public class SpawnPlayerEvent extends AbstractEvent {
         this.watchableObjects = new ArrayList<>(watchableObjectsSize);
 
         for (int i = 0; i < watchableObjectsSize; i++) {
-            WrappedWatchableObject object = new WrappedWatchableObject(inputStream.readInt(), deserializeWatchableObjectValue(inputStream));
-
-            object.setDirtyState(inputStream.readBoolean());
-
-            watchableObjects.add(object);
+            watchableObjects.add(WatchableObject.deserializeFrom(inputStream));
         }
     }
 }

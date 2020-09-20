@@ -2,6 +2,7 @@ package dev.etrayed.retrayed.plugin;
 
 import com.comphenix.protocol.utility.MinecraftProtocolVersion;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import dev.etrayed.retrayed.api.PluginPurpose;
 import dev.etrayed.retrayed.api.Replay;
 import dev.etrayed.retrayed.plugin.event.EventIteratorFactory;
@@ -48,7 +49,8 @@ public class RetrayedPlugin extends JavaPlugin implements IRetrayedPlugin {
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
 
-        this.executorService = Executors.newScheduledThreadPool(0);
+        this.executorService = Executors.newScheduledThreadPool(0, new ThreadFactoryBuilder()
+                .setNameFormat("Retrayed-Worker-%d").setDaemon(true).build());
 
         try {
             this.replayStorage = StorageStrategy.fromString(getConfig().getString("storageStrategy"))

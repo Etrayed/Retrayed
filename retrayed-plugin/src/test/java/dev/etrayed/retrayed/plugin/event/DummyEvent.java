@@ -1,8 +1,9 @@
 package dev.etrayed.retrayed.plugin.event;
 
 import dev.etrayed.retrayed.plugin.stage.ReplayStage;
-import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
+
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 /**
  * @author Etrayed
@@ -22,12 +23,12 @@ public class DummyEvent extends AbstractEvent {
     }
 
     @Override
-    public void storeIn(BukkitObjectOutputStream outputStream) throws Exception {
+    public void storeIn(ObjectOutputStream outputStream) throws Exception {
         outputStream.writeInt(anInt);
     }
 
     @Override
-    public void takeFrom(BukkitObjectInputStream inputStream) throws Exception {
+    public void takeFrom(ObjectInputStream inputStream) throws Exception {
         this.anInt = inputStream.readInt();
     }
 

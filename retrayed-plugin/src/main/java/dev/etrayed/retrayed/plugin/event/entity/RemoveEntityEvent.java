@@ -5,9 +5,9 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import dev.etrayed.retrayed.plugin.event.AbstractEvent;
 import dev.etrayed.retrayed.plugin.stage.ReplayStage;
-import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,12 +57,12 @@ public class RemoveEntityEvent extends AbstractEvent {
     }
 
     @Override
-    public void storeIn(BukkitObjectOutputStream outputStream) throws Exception {
+    public void storeIn(ObjectOutputStream outputStream) throws Exception {
         outputStream.writeObject(entityIds);
     }
 
     @Override
-    public void takeFrom(BukkitObjectInputStream inputStream) throws Exception {
+    public void takeFrom(ObjectInputStream inputStream) throws Exception {
         this.entityIds = (int[]) inputStream.readObject();
     }
 }

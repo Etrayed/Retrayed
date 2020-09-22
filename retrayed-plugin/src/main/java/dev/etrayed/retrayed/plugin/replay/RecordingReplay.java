@@ -14,8 +14,6 @@ public class RecordingReplay extends InternalReplay {
 
     private final List<TimedEvent> timedEvents;
 
-    private long lastEventNs = -1;
-
     public RecordingReplay(int id) {
         this(id, MinecraftProtocolVersion.getCurrentVersion());
     }
@@ -31,11 +29,11 @@ public class RecordingReplay extends InternalReplay {
         return Collections.unmodifiableList(timedEvents).listIterator();
     }
 
-    public void addEvent(AbstractEvent event, UUID receiver) {
+    public void addEvent(int tick, AbstractEvent event, UUID receiver) {
         if(!recordedPlayers.contains(receiver)) {
             recordedPlayers.add(receiver);
         }
 
-        timedEvents.add(new TimedEvent(lastEventNs == -1 ? 0 : (System.nanoTime() - lastEventNs), event, receiver));
+        timedEvents.add(new TimedEvent(tick, event, receiver));
     }
 }

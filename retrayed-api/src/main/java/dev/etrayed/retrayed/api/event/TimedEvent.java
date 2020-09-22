@@ -7,20 +7,20 @@ import java.util.UUID;
  */
 public class TimedEvent {
 
-    private final long time;
+    private final int tick;
 
     private final Event event;
 
     private final UUID receiver;
 
-    public TimedEvent(long time, Event event, UUID receiver) {
-        this.time = time;
+    public TimedEvent(int tick, Event event, UUID receiver) {
+        this.tick = tick;
         this.event = event;
         this.receiver = receiver;
     }
 
-    public long time() {
-        return time;
+    public int tick() {
+        return tick;
     }
 
     public Event event() {

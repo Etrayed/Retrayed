@@ -18,7 +18,7 @@ public class EventIteratorFactoryTest {
         registry.registerEvent(0, DummyEvent.class);
 
         EventIteratorFactory iteratorFactory = new EventIteratorFactory(registry);
-        String toStringOutput = iteratorFactory.toString(Collections.singletonList(new TimedEvent(1000, new DummyEvent(),
+        String toStringOutput = iteratorFactory.toString(Collections.singletonList(new TimedEvent(0, new DummyEvent(),
                 UUID.randomUUID())).listIterator());
 
         System.out.println("toString Output: " + toStringOutput);

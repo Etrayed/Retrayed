@@ -26,7 +26,7 @@ public class EventIteratorFactory {
 
         try (BukkitObjectInputStream bukkitInputStream = new BukkitObjectInputStream(inputStream)) {
             AbstractEvent event = registry.newEvent(bukkitInputStream.readInt());
-            TimedEvent timedEvent = new TimedEvent(bukkitInputStream.readLong(), event, new UUID(bukkitInputStream.readLong(),
+            TimedEvent timedEvent = new TimedEvent(bukkitInputStream.readInt(), event, new UUID(bukkitInputStream.readLong(),
                     bukkitInputStream.readLong()));
 
             event.takeFrom(bukkitInputStream);
@@ -46,7 +46,7 @@ public class EventIteratorFactory {
                 AbstractEvent abstractEvent = (AbstractEvent) timedEvent.event();
 
                 bukkitOutputStream.writeInt(registry.idByEvent(abstractEvent.getClass()));
-                bukkitOutputStream.writeLong(timedEvent.time());
+                bukkitOutputStream.writeInt(timedEvent.tick());
                 bukkitOutputStream.writeLong(timedEvent.receiver().getMostSignificantBits());
                 bukkitOutputStream.writeLong(timedEvent.receiver().getLeastSignificantBits());
 

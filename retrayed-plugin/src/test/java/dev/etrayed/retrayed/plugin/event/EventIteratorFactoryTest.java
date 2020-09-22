@@ -19,9 +19,9 @@ public class EventIteratorFactoryTest {
 
         EventIteratorFactory iteratorFactory = new EventIteratorFactory(registry);
         String toStringOutput = iteratorFactory.toString(Collections.singletonList(new TimedEvent(0, new DummyEvent(),
-                UUID.randomUUID())).listIterator());
+                UUID.randomUUID())));
 
         System.out.println("toString Output: " + toStringOutput);
-        System.out.println("Parsed successfully: " + iteratorFactory.fromString(toStringOutput).hasNext());
+        System.out.println("Parsed amount: " + iteratorFactory.fromString(toStringOutput).size());
     }
 }

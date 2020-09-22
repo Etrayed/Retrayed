@@ -3,7 +3,6 @@ package dev.etrayed.retrayed.plugin.replay;
 import dev.etrayed.retrayed.api.event.TimedEvent;
 
 import java.util.List;
-import java.util.ListIterator;
 import java.util.UUID;
 
 /**
@@ -11,16 +10,16 @@ import java.util.UUID;
  */
 public class PlayingReplay extends InternalReplay {
 
-    private final ListIterator<TimedEvent> eventIterator;
+    private final List<TimedEvent> events;
 
-    public PlayingReplay(int id, int protocolVersion, ListIterator<TimedEvent> eventIterator, List<UUID> recordedPlayers) {
+    public PlayingReplay(int id, int protocolVersion, List<TimedEvent> events, List<UUID> recordedPlayers) {
         super(id, protocolVersion, recordedPlayers);
 
-        this.eventIterator = eventIterator;
+        this.events = events;
     }
 
     @Override
-    public ListIterator<TimedEvent> eventIterator() {
-        return eventIterator;
+    public List<TimedEvent> events() {
+        return events;
     }
 }

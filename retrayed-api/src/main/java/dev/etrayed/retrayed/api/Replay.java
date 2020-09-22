@@ -17,7 +17,7 @@ public interface Replay {
 
     @NotNull
     @Unmodifiable
-    ListIterator<TimedEvent> eventIterator();
+    List<TimedEvent> events();
 
     int protocolVersion();
 

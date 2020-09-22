@@ -20,7 +20,7 @@ public class EventIteratorFactory {
         this.registry = registry;
     }
 
-    public ListIterator<TimedEvent> fromString(String encoded) throws Exception {
+    public List<TimedEvent> fromString(String encoded) throws Exception {
         List<TimedEvent> events = new ArrayList<>();
         ByteArrayInputStream inputStream = new ByteArrayInputStream(BaseEncoding.base64().decode(encoded));
 
@@ -34,15 +34,14 @@ public class EventIteratorFactory {
             events.add(timedEvent);
         }
 
-        return Collections.unmodifiableList(events).listIterator();
+        return Collections.unmodifiableList(events);
     }
 
-    public String toString(ListIterator<TimedEvent> iterator) throws Exception {
+    public String toString(List<TimedEvent> events) throws Exception {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         try (BukkitObjectOutputStream bukkitOutputStream = new BukkitObjectOutputStream(outputStream)) {
-            while (iterator.hasNext()) {
-                TimedEvent timedEvent = iterator.next();
+            for (TimedEvent timedEvent : events) {
                 AbstractEvent abstractEvent = (AbstractEvent) timedEvent.event();
 
                 bukkitOutputStream.writeInt(registry.idByEvent(abstractEvent.getClass()));

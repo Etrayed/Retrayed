@@ -4,7 +4,10 @@ import com.comphenix.protocol.utility.MinecraftProtocolVersion;
 import dev.etrayed.retrayed.api.event.TimedEvent;
 import dev.etrayed.retrayed.plugin.event.AbstractEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -25,8 +28,8 @@ public class RecordingReplay extends InternalReplay {
     }
 
     @Override
-    public ListIterator<TimedEvent> eventIterator() {
-        return Collections.unmodifiableList(timedEvents).listIterator();
+    public List<TimedEvent> events() {
+        return Collections.unmodifiableList(timedEvents);
     }
 
     public void addEvent(int tick, AbstractEvent event, UUID receiver) {

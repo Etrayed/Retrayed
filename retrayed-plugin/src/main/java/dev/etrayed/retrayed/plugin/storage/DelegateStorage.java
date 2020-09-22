@@ -48,7 +48,7 @@ public class DelegateStorage implements ReplayStorage<InternalReplay> {
     public void save(RecordingReplay replay) {
         try {
             delegate.save(new CustomReplayStorage.SimplifiedReplay(replay.id(), replay.protocolVersion(),
-                    plugin.eventIteratorFactory().toString(replay.eventIterator()), replay.recordedPlayers()));
+                    plugin.eventIteratorFactory().toString(replay.events()), replay.recordedPlayers()));
         } catch (Exception e) {
             e.printStackTrace();
         }

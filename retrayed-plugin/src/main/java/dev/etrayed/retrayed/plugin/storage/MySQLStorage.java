@@ -109,7 +109,7 @@ public class MySQLStorage implements ReplayStorage<InternalReplay> {
             statement.setInt(2, replay.protocolVersion());
             statement.setInt(5, replay.protocolVersion());
 
-            String eventData = plugin.eventIteratorFactory().toString(replay.eventIterator());
+            String eventData = plugin.eventIteratorFactory().toString(replay.events());
 
             statement.setString(3, eventData);
             statement.setString(6, eventData);

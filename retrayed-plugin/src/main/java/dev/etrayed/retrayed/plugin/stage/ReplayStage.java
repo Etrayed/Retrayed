@@ -3,10 +3,11 @@ package dev.etrayed.retrayed.plugin.stage;
 import com.comphenix.protocol.events.PacketContainer;
 import dev.etrayed.retrayed.plugin.stage.entity.ReplayEntity;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author Etrayed
@@ -15,11 +16,11 @@ public class ReplayStage {
 
     private final Map<Integer, ReplayEntity> entitiesById;
 
-    private final Consumer<PacketContainer> packetConsumer;
+    private final List<StagePacketListener> listeners;
 
-    public ReplayStage(Consumer<PacketContainer> packetConsumer) {
+    public ReplayStage() {
         this.entitiesById = new ConcurrentHashMap<>();
-        this.packetConsumer = packetConsumer;
+        this.listeners = new CopyOnWriteArrayList<>();
     }
 
     public Optional<ReplayEntity> findById(int id) {
@@ -42,7 +43,11 @@ public class ReplayStage {
         return 0;
     }
 
+    public List<StagePacketListener> listeners() {
+        return listeners;
+    }
+
     public void sendPacket(PacketContainer packetContainer) {
-        packetConsumer.accept(packetContainer);
+        listeners.forEach(stageListener -> stageListener.handlePacket(this, packetContainer));
     }
 }

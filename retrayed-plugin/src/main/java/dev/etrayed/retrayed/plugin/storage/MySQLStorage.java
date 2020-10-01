@@ -8,7 +8,6 @@ import dev.etrayed.retrayed.plugin.replay.RecordingReplay;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -35,15 +34,10 @@ public class MySQLStorage implements ReplayStorage<InternalReplay> {
     }
 
     private Connection makeConnection(Credentials credentials) throws SQLException {
-        Properties info = new Properties();
-
-        info.setProperty("username", credentials.username);
-        info.put("password", credentials.password);
-
         Connection connection = DriverManager.getConnection(String.format(CONNECTION_STRING_FORMAT,
                 credentials.host,
                 credentials.port,
-                credentials.database), info);
+                credentials.database), credentials.username, new String(credentials.password));
 
         LOGGER.info("[MYSQL] Successfully connected.");
 

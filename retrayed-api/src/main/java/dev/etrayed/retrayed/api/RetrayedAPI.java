@@ -1,5 +1,6 @@
 package dev.etrayed.retrayed.api;
 
+import dev.etrayed.retrayed.api.play.Playback;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,4 +19,7 @@ public interface RetrayedAPI {
 
     @Nullable
     PluginPurpose pluginPurpose();
+
+    @Nullable
+    Playback playback();
 }

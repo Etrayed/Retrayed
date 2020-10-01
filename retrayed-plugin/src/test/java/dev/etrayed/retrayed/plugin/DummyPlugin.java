@@ -2,6 +2,7 @@ package dev.etrayed.retrayed.plugin;
 
 import dev.etrayed.retrayed.api.PluginPurpose;
 import dev.etrayed.retrayed.api.Replay;
+import dev.etrayed.retrayed.api.play.Playback;
 import dev.etrayed.retrayed.plugin.event.EventIteratorFactory;
 import dev.etrayed.retrayed.plugin.event.EventRegistry;
 import dev.etrayed.retrayed.plugin.storage.TestingCustomStorage;
@@ -32,6 +33,11 @@ public class DummyPlugin implements IRetrayedPlugin {
     @Override
     public PluginPurpose pluginPurpose() {
         return PluginPurpose.NONE;
+    }
+
+    @Override
+    public Playback playback() {
+        return null;
     }
 
     @Override

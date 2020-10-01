@@ -91,6 +91,42 @@ public final class WatchableObject {
             outputStream.writeInt(((ChunkPosition) value).getX());
             outputStream.writeInt(((ChunkPosition) value).getY());
             outputStream.writeInt(((ChunkPosition) value).getZ());
+        } else if(value instanceof Byte) {
+            outputStream.writeByte(10);
+
+            outputStream.writeByte((Byte) value);
+        } else if(value instanceof Short) {
+            outputStream.writeByte(11);
+
+            outputStream.writeShort((Short) value);
+        } else if(value instanceof Character) {
+            outputStream.writeByte(12);
+
+            outputStream.writeChar((Character) value);
+        } else if(value instanceof Integer) {
+            outputStream.writeByte(13);
+
+            outputStream.writeInt((Integer) value);
+        } else if(value instanceof Long) {
+            outputStream.writeByte(14);
+
+            outputStream.writeLong((Long) value);
+        } else if(value instanceof Float) {
+            outputStream.writeByte(15);
+
+            outputStream.writeFloat((Float) value);
+        } else if(value instanceof Double) {
+            outputStream.writeByte(16);
+
+            outputStream.writeDouble((Double) value);
+        } else if(value instanceof Boolean) {
+            outputStream.writeByte(17);
+
+            outputStream.writeBoolean((Boolean) value);
+        } else if(value instanceof String) {
+            outputStream.writeByte(18);
+
+            outputStream.writeUTF((String) value);
         } else {
             outputStream.writeByte(0);
         }
@@ -125,8 +161,30 @@ public final class WatchableObject {
             return new WrappedChunkCoordinate(inputStream.readInt(), inputStream.readInt(), inputStream.readInt());
         } else if(type == 9) {
             return new ChunkPosition(inputStream.readInt(), inputStream.readInt(), inputStream.readInt());
+        } else if(type == 10) {
+            return inputStream.readByte();
+        } else if(type == 11) {
+            return inputStream.readShort();
+        } else if(type == 12) {
+            return inputStream.readChar();
+        } else if(type == 13) {
+            return inputStream.readInt();
+        } else if(type == 14) {
+            return inputStream.readLong();
+        } else if(type == 15) {
+            return inputStream.readFloat();
+        } else if(type == 16) {
+            return inputStream.readDouble();
+        } else if(type == 17) {
+            return inputStream.readBoolean();
+        } else if(type == 18) {
+            return inputStream.readUTF();
         } else {
             return null;
         }
+    }
+
+    public static WatchableObject unwrap(WrappedWatchableObject watchableObject) {
+        return new WatchableObject(watchableObject.getIndex(), watchableObject.getValue());
     }
 }

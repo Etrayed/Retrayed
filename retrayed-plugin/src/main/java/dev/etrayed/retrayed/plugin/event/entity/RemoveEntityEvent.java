@@ -32,12 +32,14 @@ public class RemoveEntityEvent extends AbstractEvent {
         this.cachedSpawnEvents = new HashMap<>();
 
         for (int entityId : entityIds) {
-            stage.findById(entityId).ifPresent(entity -> {
+            int replayId = stage.fromLegacyId(entityId);
+
+            stage.findById(replayId).ifPresent(entity -> {
                 if(entity.spawnEvent() != null) {
-                    cachedSpawnEvents.put(entityId, entity.spawnEvent());
+                    cachedSpawnEvents.put(replayId, entity.spawnEvent());
                 }
             });
-            stage.removeEntity(entityId);
+            stage.removeEntity(replayId);
         }
 
         PacketContainer destroyEntityPacket = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.ENTITY_DESTROY);

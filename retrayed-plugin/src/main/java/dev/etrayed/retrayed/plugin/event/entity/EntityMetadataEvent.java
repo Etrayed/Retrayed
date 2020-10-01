@@ -35,7 +35,7 @@ public class EntityMetadataEvent extends AbstractEvent {
 
     @Override
     public void recreate(ReplayStage stage) {
-        stage.findById(entityId).ifPresent(entity -> {
+        stage.findById(stage.fromLegacyId(entityId)).ifPresent(entity -> {
             this.cachedValues = new ArrayList<>();
 
             watchableObjects.forEach(watchableObject -> cachedValues.add(entity.watchableObject(watchableObject.index())));
@@ -47,7 +47,7 @@ public class EntityMetadataEvent extends AbstractEvent {
     @Override
     public void undo(ReplayStage stage) {
         if(cachedValues != null) {
-            stage.findById(entityId).ifPresent(entity -> {
+            stage.findById(stage.fromLegacyId(entityId)).ifPresent(entity -> {
                 for (WatchableObject cachedValue : cachedValues) {
                     entity.setWatchableValue(cachedValue.index(), cachedValue.value());
                 }
@@ -60,7 +60,7 @@ public class EntityMetadataEvent extends AbstractEvent {
     private void sendMetadata(ReplayStage stage, Collection<WatchableObject> watchableObjects) {
         PacketContainer container = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.ENTITY_METADATA);
 
-        container.getIntegers().write(0, entityId);
+        container.getIntegers().write(0, stage.fromLegacyId(entityId));
         container.getWatchableCollectionModifier().write(0, watchableObjects.stream().map(WatchableObject::wrap)
                 .collect(Collectors.toList()));
 

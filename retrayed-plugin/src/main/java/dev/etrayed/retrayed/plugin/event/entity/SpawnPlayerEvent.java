@@ -55,6 +55,7 @@ public class SpawnPlayerEvent extends AbstractEvent {
 
     @Override
     public void recreate(ReplayStage stage) {
+        int entityId = stage.fromLegacyId(this.entityId);
         PacketContainer spawnPlayerPacket = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.NAMED_ENTITY_SPAWN);
 
         spawnPlayerPacket.getIntegers().write(0, entityId);
@@ -72,12 +73,13 @@ public class SpawnPlayerEvent extends AbstractEvent {
         }
 
         stage.sendPacket(spawnPlayerPacket);
-        stage.spawnEntity(new ReplayPlayer(stage.nextEntityId(), new Position(spawnX, spawnY, spawnZ, yaw, pitch), uniqueId,
+        stage.spawnEntity(new ReplayPlayer(entityId, new Position(spawnX, spawnY, spawnZ, yaw, pitch), uniqueId,
                 this, watchableObjects));
     }
 
     @Override
     public void undo(ReplayStage stage) {
+        int entityId = stage.fromLegacyId(this.entityId);
         PacketContainer removeEntityPacket = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.ENTITY_DESTROY);
 
         removeEntityPacket.getIntegerArrays().write(0, new int[] {entityId});

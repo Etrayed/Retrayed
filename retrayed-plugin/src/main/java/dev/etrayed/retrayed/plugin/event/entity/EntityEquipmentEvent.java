@@ -35,7 +35,7 @@ public class EntityEquipmentEvent extends AbstractEvent {
 
     @Override
     public void recreate(ReplayStage stage) {
-        stage.findById(entityId).ifPresent(entity -> {
+        stage.findById(stage.fromLegacyId(entityId)).ifPresent(entity -> {
             this.oldEquipment = entity.equipment(equipmentSlot);
 
             entity.setEquipment(equipmentSlot, itemStack);
@@ -46,7 +46,7 @@ public class EntityEquipmentEvent extends AbstractEvent {
 
     @Override
     public void undo(ReplayStage stage) {
-        stage.findById(entityId).ifPresent(entity -> {
+        stage.findById(stage.fromLegacyId(entityId)).ifPresent(entity -> {
             entity.setEquipment(equipmentSlot, oldEquipment);
 
             sendEquipmentChange(stage, oldEquipment);
@@ -58,7 +58,7 @@ public class EntityEquipmentEvent extends AbstractEvent {
     private void sendEquipmentChange(ReplayStage stage, ItemStack itemStack) {
         PacketContainer container = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.ENTITY_EQUIPMENT);
 
-        container.getIntegers().write(0, entityId);
+        container.getIntegers().write(0, stage.fromLegacyId(entityId));
 
         if(container.getIntegers().size() > 1) {
             if(!equipmentSlot.isLegacySupport()) {

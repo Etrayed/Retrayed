@@ -3,10 +3,11 @@ package dev.etrayed.retrayed.plugin.play;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import dev.etrayed.retrayed.api.event.TimedEvent;
+import dev.etrayed.retrayed.api.play.Playback;
+import dev.etrayed.retrayed.api.play.PlaybackPacketListener;
 import dev.etrayed.retrayed.plugin.RetrayedPlugin;
 import dev.etrayed.retrayed.plugin.event.AbstractEvent;
 import dev.etrayed.retrayed.plugin.stage.ReplayStage;
-import dev.etrayed.retrayed.plugin.stage.StagePacketListener;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -21,7 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * @author Etrayed
  */
-public class Playback implements Runnable {
+public class PlaybackImpl implements Playback, Runnable {
 
     private final RetrayedPlugin plugin;
 
@@ -37,7 +38,7 @@ public class Playback implements Runnable {
 
     private BukkitTask task;
 
-    public Playback(RetrayedPlugin plugin) {
+    public PlaybackImpl(RetrayedPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -46,7 +47,7 @@ public class Playback implements Runnable {
         this.stages = new HashMap<>();
 
         plugin.currentReplay().events().forEach(timedEvent -> timedEventMultimap.put(timedEvent.tick(), timedEvent));
-        plugin.currentReplay().recordedPlayers().forEach(uuid -> stages.put(uuid, new ReplayStage()));
+        plugin.currentReplay().recordedPlayers().forEach(uuid -> stages.put(uuid, new ReplayStage(this)));
 
         this.currentTick = new AtomicInteger();
         this.paused = new AtomicBoolean();
@@ -129,17 +130,17 @@ public class Playback implements Runnable {
         }
     }
 
-    public void addListener(UUID recordedPlayer, StagePacketListener listener) {
+    public void addListener(UUID recordedPlayer, PlaybackPacketListener listener) {
         if(stages.containsKey(recordedPlayer)) {
             stages.get(recordedPlayer).listeners().add(listener);
         }
     }
 
-    public boolean isListening(UUID recordedPlayer, StagePacketListener listener) {
+    public boolean isListening(UUID recordedPlayer, PlaybackPacketListener listener) {
         return stages.containsKey(recordedPlayer) && stages.get(recordedPlayer).listeners().contains(listener);
     }
 
-    public void removeListener(UUID recordedPlayer, StagePacketListener listener) {
+    public void removeListener(UUID recordedPlayer, PlaybackPacketListener listener) {
         if(stages.containsKey(recordedPlayer)) {
             stages.get(recordedPlayer).listeners().remove(listener);
         }

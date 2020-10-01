@@ -1,16 +1,23 @@
 package dev.etrayed.retrayed.plugin;
 
+import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.utility.MinecraftProtocolVersion;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import dev.etrayed.retrayed.api.PluginPurpose;
 import dev.etrayed.retrayed.api.Replay;
+import dev.etrayed.retrayed.api.RetrayedAPI;
 import dev.etrayed.retrayed.plugin.event.EventIteratorFactory;
 import dev.etrayed.retrayed.plugin.event.EventRegistry;
+import dev.etrayed.retrayed.plugin.play.PlaybackImpl;
+import dev.etrayed.retrayed.plugin.record.RecordingPacketListener;
+import dev.etrayed.retrayed.plugin.record.TickCounter;
+import dev.etrayed.retrayed.plugin.replay.PlayingReplay;
 import dev.etrayed.retrayed.plugin.replay.RecordingReplay;
 import dev.etrayed.retrayed.plugin.storage.ReplayStorage;
 import dev.etrayed.retrayed.plugin.storage.StorageStrategy;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.annotation.dependency.Dependency;
 import org.bukkit.plugin.java.annotation.dependency.DependsOn;
@@ -44,6 +51,8 @@ public class RetrayedPlugin extends JavaPlugin implements IRetrayedPlugin {
 
     private EventRegistry eventRegistry;
 
+    private PlaybackImpl playback;
+
     @Override
     public void onLoad() {
         getConfig().options().copyDefaults(true);
@@ -59,23 +68,35 @@ public class RetrayedPlugin extends JavaPlugin implements IRetrayedPlugin {
             getLogger().log(Level.SEVERE, "Could not initialize replayStorage: ", e);
 
             Bukkit.getPluginManager().disablePlugin(this);
+
+            return;
         }
+
+        Bukkit.getServicesManager().register(RetrayedAPI.class, this, this, ServicePriority.Highest);
     }
 
     @Override
     public void onDisable() {
         if(replayStorage != null) {
+            if(replay instanceof RecordingReplay) {
+                replayStorage.save((RecordingReplay) replay);
+            }
+
             try {
                 replayStorage.close();
             } catch (IOException e) {
                 getLogger().log(Level.SEVERE, "Failed to close replayStorage: ", e);
             }
         }
+
+        if(executorService != null) {
+            executorService.shutdown();
+        }
     }
 
     @Override
     public Future<Replay> initReplay(int replayId, PluginPurpose purpose) {
-        Preconditions.checkArgument(replay != null && purpose != null, "This server has already been initialized.");
+        Preconditions.checkArgument(replay == null || purpose == null, "This server has already been initialized.");
 
         if(purpose == PluginPurpose.NONE) {
             Bukkit.getPluginManager().disablePlugin(this);
@@ -99,6 +120,12 @@ public class RetrayedPlugin extends JavaPlugin implements IRetrayedPlugin {
 
                 this.replay = replay;
 
+                if(replay instanceof PlayingReplay) {
+                    this.playback = new PlaybackImpl(this);
+
+                    playback.start();
+                }
+
                 secondaryFuture.complete(replay);
             } catch (Throwable throwable) {
                 secondaryFuture.completeExceptionally(throwable);
@@ -120,6 +147,10 @@ public class RetrayedPlugin extends JavaPlugin implements IRetrayedPlugin {
             case PLAY:
                 return (CompletableFuture<Replay>) replayStorage.load(replayId);
             case RECORD:
+                Bukkit.getScheduler().runTaskTimerAsynchronously(this, new TickCounter(), 1, 1);
+
+                ProtocolLibrary.getProtocolManager().addPacketListener(new RecordingPacketListener(this));
+
                 return CompletableFuture.completedFuture(new RecordingReplay(replayId));
             default:
                 throw new InternalError("Could not handle PluginPurpose: " + purpose); // this should never happen
@@ -166,5 +197,10 @@ public class RetrayedPlugin extends JavaPlugin implements IRetrayedPlugin {
         }
 
         return eventRegistry;
+    }
+
+    @Override
+    public PlaybackImpl playback() {
+        return playback;
     }
 }

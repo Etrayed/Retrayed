@@ -11,11 +11,14 @@ import org.bukkit.inventory.ItemStack;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Method;
 
 /**
  * @author Etrayed
  */
 public final class WatchableObject {
+
+    private static Method getUnwrappedMethod;
 
     private final int index;
 
@@ -133,7 +136,23 @@ public final class WatchableObject {
     }
 
     public WrappedWatchableObject wrap() {
-        return new WrappedWatchableObject(index, value instanceof AbstractWrapper ? ((AbstractWrapper) value).getHandle() : value);
+        try {
+            return new WrappedWatchableObject(index, protocolUnwrap(value));
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+
+            return new WrappedWatchableObject(index, value);
+        }
+    }
+
+    private Object protocolUnwrap(Object wrapped) throws ReflectiveOperationException {
+        if(getUnwrappedMethod == null) {
+            getUnwrappedMethod = WrappedWatchableObject.class.getDeclaredMethod("getUnwrapped", Object.class);
+
+            getUnwrappedMethod.setAccessible(true);
+        }
+
+        return getUnwrappedMethod.invoke(null, wrapped);
     }
 
     public static WatchableObject deserializeFrom(ObjectInputStream inputStream) throws IOException, ClassNotFoundException {

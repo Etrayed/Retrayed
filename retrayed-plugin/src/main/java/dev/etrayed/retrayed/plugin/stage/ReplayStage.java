@@ -30,6 +30,8 @@ public class ReplayStage {
         try {
             ENTITY_COUNT_FIELD = Class.forName("net.minecraft.server." + serverPackage.substring(serverPackage
                     .lastIndexOf('.') + 1) + ".Entity").getDeclaredField("entityCount");
+
+            ENTITY_COUNT_FIELD.setAccessible(true);
         } catch (ClassNotFoundException | NoSuchFieldException e) {
             throw new InternalError(e);
         }

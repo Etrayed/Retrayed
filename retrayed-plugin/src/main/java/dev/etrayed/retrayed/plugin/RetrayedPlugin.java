@@ -3,6 +3,7 @@ package dev.etrayed.retrayed.plugin;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.utility.MinecraftProtocolVersion;
 import com.google.common.base.Preconditions;
+import com.google.common.reflect.ClassPath;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import dev.etrayed.retrayed.api.PluginPurpose;
 import dev.etrayed.retrayed.api.Replay;
@@ -17,6 +18,7 @@ import dev.etrayed.retrayed.plugin.replay.RecordingReplay;
 import dev.etrayed.retrayed.plugin.storage.ReplayStorage;
 import dev.etrayed.retrayed.plugin.storage.StorageStrategy;
 import org.bukkit.Bukkit;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.annotation.dependency.Dependency;
@@ -25,6 +27,9 @@ import org.bukkit.plugin.java.annotation.plugin.Plugin;
 import org.bukkit.plugin.java.annotation.plugin.author.Author;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -73,6 +78,39 @@ public class RetrayedPlugin extends JavaPlugin implements IRetrayedPlugin {
         }
 
         Bukkit.getServicesManager().register(RetrayedAPI.class, this, this, ServicePriority.Highest);
+    }
+
+    @Override
+    public void onEnable() {
+        try {
+            registerListeners();
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Could not register listeners: ", e);
+
+            Bukkit.getPluginManager().disablePlugin(this);
+        }
+    }
+
+    @SuppressWarnings({"UnstableApiUsage", "unchecked"})
+    private void registerListeners() throws IOException {
+        Set<ClassPath.ClassInfo> classes = ClassPath.from(getClass().getClassLoader()).getTopLevelClasses("dev.etrayed.retrayed.plugin.listener");
+
+        for (ClassPath.ClassInfo classInfo : classes) {
+            try {
+                Class<?> listenerClass = Class.forName(classInfo.getName(), true, getClass().getClassLoader());
+
+                if(Listener.class.isAssignableFrom(listenerClass) && !Modifier.isAbstract(listenerClass.getModifiers())) {
+                    Constructor<? extends Listener> constructor = (Constructor<? extends Listener>) listenerClass
+                            .getDeclaredConstructor(RetrayedPlugin.class);
+
+                    constructor.setAccessible(true);
+
+                    Bukkit.getPluginManager().registerEvents(constructor.newInstance(this), this);
+                }
+            } catch (ReflectiveOperationException e) {
+                getLogger().log(Level.SEVERE, "Failed to register listener " + classInfo.getName() + ": ", e);
+            }
+        }
     }
 
     @Override
@@ -202,5 +240,9 @@ public class RetrayedPlugin extends JavaPlugin implements IRetrayedPlugin {
     @Override
     public PlaybackImpl playback() {
         return playback;
+    }
+
+    public Object handleOf(Object obj) throws ReflectiveOperationException {
+        return obj.getClass().getDeclaredMethod("getHandle").invoke(obj);
     }
 }

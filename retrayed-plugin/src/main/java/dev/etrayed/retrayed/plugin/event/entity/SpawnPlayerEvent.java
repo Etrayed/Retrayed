@@ -3,11 +3,15 @@ package dev.etrayed.retrayed.plugin.event.entity;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import dev.etrayed.retrayed.plugin.event.AbstractEvent;
 import dev.etrayed.retrayed.plugin.stage.Position;
 import dev.etrayed.retrayed.plugin.stage.ReplayStage;
 import dev.etrayed.retrayed.plugin.stage.entity.ReplayPlayer;
 import dev.etrayed.retrayed.plugin.stage.entity.WatchableObject;
+import dev.etrayed.retrayed.plugin.util.ConversionUtilities;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -25,7 +29,7 @@ public class SpawnPlayerEvent extends AbstractEvent {
 
     private UUID uniqueId;
 
-    private double spawnX, spawnY, spawnZ;
+    private int spawnX, spawnY, spawnZ;
 
     private byte yaw, pitch;
 
@@ -36,11 +40,11 @@ public class SpawnPlayerEvent extends AbstractEvent {
     public SpawnPlayerEvent() {
     }
 
-    public SpawnPlayerEvent(int entityId, UUID uniqueId, double spawnX, double spawnY, double spawnZ, byte yaw, byte pitch) {
+    public SpawnPlayerEvent(int entityId, UUID uniqueId, int spawnX, int spawnY, int spawnZ, byte yaw, byte pitch) {
         this(entityId, uniqueId, spawnX, spawnY, spawnZ, yaw, pitch, -1, null);
     }
 
-    public SpawnPlayerEvent(int entityId, UUID uniqueId, double spawnX, double spawnY, double spawnZ, byte yaw, byte pitch,
+    public SpawnPlayerEvent(int entityId, UUID uniqueId, int spawnX, int spawnY, int spawnZ, byte yaw, byte pitch,
                             int itemInHand, List<WatchableObject> watchableObjects) {
         this.entityId = entityId;
         this.uniqueId = uniqueId;
@@ -53,6 +57,24 @@ public class SpawnPlayerEvent extends AbstractEvent {
         this.watchableObjects = watchableObjects;
     }
 
+    public SpawnPlayerEvent(Player player) {
+        this.entityId = player.getEntityId();
+        this.uniqueId = player.getUniqueId();
+        this.itemInHand = ConversionUtilities.toSafeId(player.getItemInHand());
+        this.watchableObjects = WrappedDataWatcher.getEntityWatcher(player).getWatchableObjects().stream()
+                .map(WatchableObject::unwrap).collect(Collectors.toList());
+
+        applyLocation(player.getLocation());
+    }
+
+    private void applyLocation(Location location) {
+        this.spawnX = ConversionUtilities.floorCoordinate(location.getX());
+        this.spawnY = ConversionUtilities.floorCoordinate(location.getY());
+        this.spawnZ = ConversionUtilities.floorCoordinate(location.getZ());
+        this.yaw = ConversionUtilities.correctRotation(location.getYaw());
+        this.pitch = ConversionUtilities.correctRotation(location.getPitch());
+    }
+
     @Override
     public void recreate(ReplayStage stage) {
         int entityId = stage.fromLegacyId(this.entityId);
@@ -60,16 +82,16 @@ public class SpawnPlayerEvent extends AbstractEvent {
 
         spawnPlayerPacket.getIntegers().write(0, entityId);
         spawnPlayerPacket.getUUIDs().write(0, uniqueId);
-        spawnPlayerPacket.getDoubles().write(0, spawnX).write(1, spawnY).write(2, spawnZ);
+        spawnPlayerPacket.getIntegers().write(1, spawnX).write(2, spawnY).write(3, spawnZ);
         spawnPlayerPacket.getBytes().write(0, yaw).write(1, pitch);
 
         if(itemInHand != -1) {
-            spawnPlayerPacket.getIntegers().write(1, itemInHand);
+            spawnPlayerPacket.getIntegers().write(4, itemInHand);
         }
 
         if(watchableObjects != null) {
-            spawnPlayerPacket.getWatchableCollectionModifier().write(0, watchableObjects.stream()
-                    .map(WatchableObject::wrap).collect(Collectors.toList()));
+            spawnPlayerPacket.getDataWatcherModifier().write(0, new WrappedDataWatcher(watchableObjects.stream()
+                    .map(WatchableObject::wrap).collect(Collectors.toList())));
         }
 
         stage.sendPacket(spawnPlayerPacket);
@@ -93,9 +115,9 @@ public class SpawnPlayerEvent extends AbstractEvent {
         outputStream.writeInt(entityId);
         outputStream.writeLong(uniqueId.getMostSignificantBits());
         outputStream.writeLong(uniqueId.getLeastSignificantBits());
-        outputStream.writeDouble(spawnX);
-        outputStream.writeDouble(spawnY);
-        outputStream.writeDouble(spawnZ);
+        outputStream.writeInt(spawnX);
+        outputStream.writeInt(spawnY);
+        outputStream.writeInt(spawnZ);
         outputStream.writeByte(yaw);
         outputStream.writeByte(pitch);
         outputStream.writeInt(itemInHand);
@@ -110,9 +132,9 @@ public class SpawnPlayerEvent extends AbstractEvent {
     public void takeFrom(ObjectInputStream inputStream) throws Exception {
         this.entityId = inputStream.readInt();
         this.uniqueId = new UUID(inputStream.readLong(), inputStream.readLong());
-        this.spawnX = inputStream.readDouble();
-        this.spawnY = inputStream.readDouble();
-        this.spawnZ = inputStream.readDouble();
+        this.spawnX = inputStream.readInt();
+        this.spawnY = inputStream.readInt();
+        this.spawnZ = inputStream.readInt();
         this.yaw = inputStream.readByte();
         this.pitch = inputStream.readByte();
         this.itemInHand = inputStream.readInt();

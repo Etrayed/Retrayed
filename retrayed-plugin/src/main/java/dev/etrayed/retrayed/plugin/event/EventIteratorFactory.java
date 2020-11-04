@@ -25,13 +25,17 @@ public class EventIteratorFactory {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(BaseEncoding.base64().decode(encoded));
 
         try (BukkitObjectInputStream bukkitInputStream = new BukkitObjectInputStream(inputStream)) {
-            AbstractEvent event = registry.newEvent(bukkitInputStream.readInt());
-            TimedEvent timedEvent = new TimedEvent(bukkitInputStream.readInt(), event, new UUID(bukkitInputStream.readLong(),
-                    bukkitInputStream.readLong()));
+            int size = bukkitInputStream.readInt();
 
-            event.takeFrom(bukkitInputStream);
+            for (int i = 0; i < size; i++) {
+                AbstractEvent event = registry.newEvent(bukkitInputStream.readInt());
+                TimedEvent timedEvent = new TimedEvent(bukkitInputStream.readInt(), event, new UUID(bukkitInputStream.readLong(),
+                        bukkitInputStream.readLong()));
 
-            events.add(timedEvent);
+                event.takeFrom(bukkitInputStream);
+
+                events.add(timedEvent);
+            }
         }
 
         return Collections.unmodifiableList(events);
@@ -41,6 +45,8 @@ public class EventIteratorFactory {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         try (BukkitObjectOutputStream bukkitOutputStream = new BukkitObjectOutputStream(outputStream)) {
+            bukkitOutputStream.writeInt(events.size());
+
             for (TimedEvent timedEvent : events) {
                 AbstractEvent abstractEvent = (AbstractEvent) timedEvent.event();
 

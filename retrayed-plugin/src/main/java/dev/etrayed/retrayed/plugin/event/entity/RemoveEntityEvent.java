@@ -23,6 +23,10 @@ public class RemoveEntityEvent extends AbstractEvent {
     public RemoveEntityEvent() {
     }
 
+    public RemoveEntityEvent(int entityId) {
+        this(new int[] {entityId});
+    }
+
     public RemoveEntityEvent(int[] entityIds) {
         this.entityIds = entityIds;
     }

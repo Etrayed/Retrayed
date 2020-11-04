@@ -6,6 +6,7 @@ import dev.etrayed.retrayed.plugin.event.entity.EntityEquipmentEvent;
 import dev.etrayed.retrayed.plugin.event.entity.EntityMetadataEvent;
 import dev.etrayed.retrayed.plugin.event.entity.RemoveEntityEvent;
 import dev.etrayed.retrayed.plugin.event.entity.SpawnPlayerEvent;
+import dev.etrayed.retrayed.plugin.event.other.PlayerInfoEvent;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,6 +27,7 @@ public class EventRegistry {
         registerEvent(2, RemoveEntityEvent.class);
         registerEvent(3, EntityEquipmentEvent.class);
         registerEvent(4, EntityMetadataEvent.class);
+        registerEvent(5, PlayerInfoEvent.class);
     }
 
     void registerEvent(int id, Class<? extends AbstractEvent> eventClass) {

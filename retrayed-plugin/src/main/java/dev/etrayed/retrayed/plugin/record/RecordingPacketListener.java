@@ -1,17 +1,19 @@
 package dev.etrayed.retrayed.plugin.record;
 
 import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.injector.GamePhase;
 import dev.etrayed.retrayed.plugin.RetrayedPlugin;
 import dev.etrayed.retrayed.plugin.event.AbstractEvent;
 import dev.etrayed.retrayed.plugin.event.entity.EntityEquipmentEvent;
 import dev.etrayed.retrayed.plugin.event.entity.EntityMetadataEvent;
 import dev.etrayed.retrayed.plugin.event.entity.RemoveEntityEvent;
 import dev.etrayed.retrayed.plugin.event.entity.SpawnPlayerEvent;
+import dev.etrayed.retrayed.plugin.event.other.PlayerInfoEvent;
 import dev.etrayed.retrayed.plugin.replay.RecordingReplay;
+import dev.etrayed.retrayed.plugin.stage.PlayerInfo;
 import dev.etrayed.retrayed.plugin.stage.entity.WatchableObject;
 
 import java.util.stream.Collectors;
@@ -26,8 +28,8 @@ public class RecordingPacketListener extends PacketAdapter {
     private final RetrayedPlugin plugin;
 
     public RecordingPacketListener(RetrayedPlugin plugin) {
-        super(new AdapterParameteters().plugin(plugin).gamePhase(GamePhase.PLAYING).serverSide()
-                .types(NAMED_ENTITY_SPAWN, ENTITY_DESTROY, ENTITY_EQUIPMENT, ENTITY_METADATA));
+        super(new AdapterParameteters().plugin(plugin).listenerPriority(ListenerPriority.HIGHEST).serverSide()
+                .types(NAMED_ENTITY_SPAWN, ENTITY_DESTROY, ENTITY_EQUIPMENT, ENTITY_METADATA, PLAYER_INFO));
 
         this.plugin = plugin;
     }
@@ -50,6 +52,9 @@ public class RecordingPacketListener extends PacketAdapter {
         } else if(type == ENTITY_METADATA) {
             addEvent(event, new EntityMetadataEvent(container.getIntegers().read(0), container.getWatchableCollectionModifier()
                     .read(0).stream().map(WatchableObject::unwrap).collect(Collectors.toList())));
+        } else if(type == PLAYER_INFO) {
+            addEvent(event, new PlayerInfoEvent(container.getPlayerInfoAction().read(0),
+                    container.getPlayerInfoDataLists().read(0).stream().map(PlayerInfo::fromPID).collect(Collectors.toList())));
         }
     }
 

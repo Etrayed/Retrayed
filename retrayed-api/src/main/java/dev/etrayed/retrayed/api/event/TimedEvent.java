@@ -30,4 +30,13 @@ public class TimedEvent {
     public UUID receiver() {
         return receiver;
     }
+
+    @Override
+    public String toString() {
+        return "TimedEvent{" +
+                "tick=" + tick +
+                ", event=" + event +
+                ", receiver=" + receiver +
+                '}';
+    }
 }

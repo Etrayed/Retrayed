@@ -4,6 +4,7 @@ import dev.etrayed.retrayed.plugin.RetrayedPlugin;
 import dev.etrayed.retrayed.plugin.event.entity.RemoveEntityEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 /**
@@ -18,6 +19,13 @@ public class PlayerQuitListener extends RecordingListener {
     @EventHandler
     public void handleQuit(PlayerQuitEvent quitEvent) {
         Player player = quitEvent.getPlayer();
+
+        addEvent(new RemoveEntityEvent(player.getEntityId()), player);
+    }
+
+    @EventHandler
+    public void handleKick(PlayerKickEvent kickEvent) {
+        Player player = kickEvent.getPlayer();
 
         addEvent(new RemoveEntityEvent(player.getEntityId()), player);
     }

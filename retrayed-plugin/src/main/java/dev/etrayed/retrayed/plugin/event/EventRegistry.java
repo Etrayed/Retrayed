@@ -2,10 +2,7 @@ package dev.etrayed.retrayed.plugin.event;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import dev.etrayed.retrayed.plugin.event.entity.EntityEquipmentEvent;
-import dev.etrayed.retrayed.plugin.event.entity.EntityMetadataEvent;
-import dev.etrayed.retrayed.plugin.event.entity.RemoveEntityEvent;
-import dev.etrayed.retrayed.plugin.event.entity.SpawnPlayerEvent;
+import dev.etrayed.retrayed.plugin.event.entity.*;
 import dev.etrayed.retrayed.plugin.event.other.PlayerInfoEvent;
 
 import java.util.logging.Level;
@@ -28,6 +25,11 @@ public class EventRegistry {
         registerEvent(3, EntityEquipmentEvent.class);
         registerEvent(4, EntityMetadataEvent.class);
         registerEvent(5, PlayerInfoEvent.class);
+        registerEvent(6, EntityMoveEvent.class);
+        registerEvent(7, EntityLookEvent.class);
+        registerEvent(8, EntityTeleportEvent.class);
+        registerEvent(9, EntityHeadRotation.class);
+        registerEvent(10, EntityMoveLookEvent.class);
     }
 
     void registerEvent(int id, Class<? extends AbstractEvent> eventClass) {

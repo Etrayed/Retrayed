@@ -29,4 +29,14 @@ public interface ReplayEntity {
     Object watchableValue(int index);
 
     Collection<WatchableObject> watchableObjects();
+
+    boolean isOnGround();
+
+    void setOnGround(boolean onGround);
+
+    void setPosition(Position position);
+
+    byte headRotation();
+
+    void setHeadRotation(byte headRotation);
 }

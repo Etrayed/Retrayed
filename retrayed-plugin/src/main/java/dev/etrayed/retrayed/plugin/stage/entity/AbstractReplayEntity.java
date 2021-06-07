@@ -25,6 +25,10 @@ public abstract class AbstractReplayEntity implements ReplayEntity {
 
     private Map<Integer, WatchableObject> watchableObjects;
 
+    private boolean onGround;
+
+    private byte headRotation;
+
     public AbstractReplayEntity(int id, Position position, AbstractEvent spawnEvent,
                                 Collection<WatchableObject> watchableObjects) {
         this.id = id;
@@ -88,5 +92,30 @@ public abstract class AbstractReplayEntity implements ReplayEntity {
     @Override
     public final Collection<WatchableObject> watchableObjects() {
         return Collections.unmodifiableCollection(watchableObjects.values());
+    }
+
+    @Override
+    public final boolean isOnGround() {
+        return onGround;
+    }
+
+    @Override
+    public final void setOnGround(boolean onGround) {
+        this.onGround = onGround;
+    }
+
+    @Override
+    public final void setPosition(Position position) {
+        this.position = position;
+    }
+
+    @Override
+    public final byte headRotation() {
+        return headRotation;
+    }
+
+    @Override
+    public final void setHeadRotation(byte headRotation) {
+        this.headRotation = headRotation;
     }
 }

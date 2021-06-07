@@ -41,6 +41,18 @@ public class Position {
         return z;
     }
 
+    public int xInt() {
+        return (int) x;
+    }
+
+    public int yInt() {
+        return (int) y;
+    }
+
+    public int zInt() {
+        return (int) z;
+    }
+
     public byte yaw() {
         return yaw;
     }

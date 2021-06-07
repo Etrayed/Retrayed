@@ -48,7 +48,7 @@ public class RetrayedPlugin extends JavaPlugin implements IRetrayedPlugin {
 
     private Replay replay;
 
-    private PluginPurpose purpose;
+    private PluginPurpose purpose = PluginPurpose.NOT_SET;
 
     private ScheduledExecutorService executorService;
 
